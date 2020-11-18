@@ -9,9 +9,9 @@ import glfw
 import numpy as np
 import sys
 
-import transformations as tr
+import transformations2 as tr
 import easy_shaders as es
-import scene_graph as sg
+import scene_graph2 as sg
 import basic_shapes as bs
 
 
@@ -68,9 +68,9 @@ class pasto(object):
 class plane(object):
     def __init__(self):
         
-        gpuCuadradoBlanco = es.toGPUShape(bs.createColorQuad(1,1,1))
-        gpuTrianguloBlanco = es.toGPUShape(bs.createColorTriangle(0.5,0.5,0.5))
-        gpuCuadradoCeleste = es.toGPUShape(bs.createColorQuad(0.2,0.8,0.9))
+        gpuCuboBlanco = es.toGPUShape(bs.createColorCube(1,1,1))
+        gpuPiramideBlanco = es.toGPUShape(bs.createColorPyramid(0.5,0.5,0.5))
+        gpuCuboCeleste = es.toGPUShape(bs.createColorCube(0.2,0.8,0.9))
     
         #la idea es realizar una avioneta
         #definimos primero las partes que necesitaran tamaños distintos
@@ -78,90 +78,121 @@ class plane(object):
     
         #realizamos el cuerpo del avion
         cuerpo = sg.SceneGraphNode("cuerpo")
-        cuerpo.transform = tr.scale(0.8,0.5,1)
-        cuerpo.childs += [gpuCuadradoBlanco]
+        cuerpo.transform = tr.scale(0.8, 0.4, 0.3)
+        cuerpo.childs += [gpuCuboBlanco]
     
         #realizamos la parte delantera del avion 
         cara = sg.SceneGraphNode("cara")
-        cara.transform = tr.scale(0.8,0.3,0.5)
-        cara.childs += [gpuCuadradoBlanco]
+        cara.transform = tr.scale(0.8, 0.3, 0.2)
+        cara.childs += [gpuCuboBlanco]
     
         #Una ventana para que parezca más avión
         ventana = sg.SceneGraphNode("ventana")
-        ventana.transform = tr.scale(0.3,0.2,1)
-        ventana.childs += [gpuCuadradoCeleste]
+        ventana.transform = tr.scale(0.15, 0.41, 0.1)
+        ventana.childs += [gpuCuboCeleste]
     
         #la punta del avión
         tamPunta = sg.SceneGraphNode("tamPunta")
-        tamPunta.transform = tr.uniformScale(0.3)
-        tamPunta.childs += [gpuTrianguloBlanco]
+        tamPunta.transform = tr.scale(0.2, 0.3, 0.3)
+        tamPunta.childs += [gpuPiramideBlanco]
     
         #la ala trasera
         tamAlatrasera = sg.SceneGraphNode("tamAlatrasea")
-        tamAlatrasera.transform = tr.scale(0.9, 0.3, 0.6)
-        tamAlatrasera.childs += [gpuTrianguloBlanco]
+        tamAlatrasera.transform = tr.scale(0.3, 0.25, 0.5)
+        tamAlatrasera.childs += [gpuPiramideBlanco]
     
-        #Esta será parte de la ala trasera también
+        #Esta será parte de la ala trasera también 
         tamAleta = sg.SceneGraphNode("tamAleta")
-        tamAleta.transform = tr.scale(0.5, 0.6, 0)
-        tamAleta.childs += [gpuTrianguloBlanco]
+        tamAleta.transform = tr.scale(0.2, 0.1, 0.5)
+        tamAleta.childs += [gpuPiramideBlanco]
+
+        #Esta será parte de la ala trasera también
+        tamAleta2 = sg.SceneGraphNode("tamAleta2")
+        tamAleta2.transform = tr.scale(0.2, 0.1, 0.5)
+        tamAleta2.childs += [gpuPiramideBlanco]
     
         #Esta será la ala que se visualizará por un costado del avión
         tamAla = sg.SceneGraphNode("tamAla")
-        tamAla.transform = tr.scale(0.5,0.6,1)
-        tamAla.childs += [gpuTrianguloBlanco]
+        tamAla.transform = tr.scale(0.7,0.1,0.9)
+        tamAla.childs += [gpuPiramideBlanco]
+
+
+        #Esta será la otra ala que se visualizará por un costado del avión
+        tamAla2 = sg.SceneGraphNode("tamAla")
+        tamAla2.transform = tr.scale(0.7,0.1,0.9)
+        tamAla2.childs += [gpuPiramideBlanco]
     
 
         #ahora realizamos las rotaciones para que cada pieza quede mirando a donde debería
         punta = sg.SceneGraphNode("punta")
-        punta.transform = tr.rotationZ(np.radians(-90))
+        punta.transform = tr.rotationY(np.radians(90))
         punta.childs += [tamPunta]
     
     
         alaTrasera = sg.SceneGraphNode("alaTrasera")
-        alaTrasera.transform = tr.rotationZ(np.radians(-90))
+        alaTrasera.transform = tr.rotationY(np.radians(-90))
         alaTrasera.childs += [tamAlatrasera]
     
     
         aleta = sg.SceneGraphNode("aleta")
-        aleta.transform = tr.rotationZ(np.radians(90))
+        aleta.transform = tr.rotationX(np.radians(270))
         aleta.childs += [tamAleta]
+
+
+        aleta2 = sg.SceneGraphNode("aleta2")
+        aleta2.transform = tr.rotationX(np.radians(90))
+        aleta2.childs += [tamAleta2]
     
     
         ala = sg.SceneGraphNode("ala")
-        ala.transform = tr.rotationZ(np.radians(-180))
+        ala.transform = tr.rotationX(np.radians(270))
         ala.childs += [tamAla]
+
+
+        ala2 = sg.SceneGraphNode("ala2")
+        ala2.transform = tr.rotationX(np.radians(90))
+        ala2.childs += [tamAla2]
     
 
         #Finalmente realizamos las traslaciones para que las piezas en conjunto se vean como un avión
     
         posCara = sg.SceneGraphNode("posCara")
-        posCara.transform = tr.translate(0.3,-0.1,0)
+        posCara.transform = tr.translate(0.3, 0, 0)
         posCara.childs += [cara]
     
         posVentana = sg.SceneGraphNode("ventana")
-        posVentana.transform = tr.translate(0.25,0.15,0)
+        posVentana.transform = tr.translate(0.41, 0, 0.11)
         posVentana.childs += [ventana]
     
     
         posPunta = sg.SceneGraphNode("posPunta")
-        posPunta.transform = tr.translate(0.85,-0.1,0)
+        posPunta.transform = tr.translate(0.85,0, 0)
         posPunta.childs += [punta]
     
     
         posAlatrasera = sg.SceneGraphNode("posAlatrasea")
-        posAlatrasera.transform = tr.translate(-0.65,0.1,0)
+        posAlatrasera.transform = tr.translate(-0.65,0,0)
         posAlatrasera.childs += [alaTrasera]
     
     
         posAleta = sg.SceneGraphNode("posAleta")
-        posAleta.transform = tr.translate(-0.7,0,0)
+        posAleta.transform = tr.translate(-0.65,0.3,0)
         posAleta.childs += [aleta]
+
+
+        posAleta2 = sg.SceneGraphNode("posAleta2")
+        posAleta2.transform = tr.translate(-0.65,-0.3,0)
+        posAleta2.childs += [aleta2]
     
     
         posAla = sg.SceneGraphNode("posAla")
-        posAla.transform = tr.translate(0,-0.3,0)
+        posAla.transform = tr.translate(0,0.6,0)
         posAla.childs += [ala]
+
+
+        posAla2 = sg.SceneGraphNode("posAla2")
+        posAla2.transform = tr.translate(0,-0.6,0)
+        posAla2.childs += [ala2]
     
 
         #creamos la raiz de todos los nodos y lo que será nuestro avión
@@ -172,7 +203,9 @@ class plane(object):
         Avion.childs += [posPunta]
         Avion.childs += [posAlatrasera]
         Avion.childs += [posAleta]
+        Avion.childs += [posAleta2]
         Avion.childs += [posAla]
+        Avion.childs += [posAla2]
         Avion.childs += [posVentana]
         
         # Con la raiz de el avión completa, creamos nodos para moverlo y darle escala adecuada
@@ -433,13 +466,31 @@ class plane(object):
             self.youdied = True
     
     
-    def draw(self,pipeline):
-        self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
-        sg.drawSceneGraphNode(self.model, pipeline, "transform")
+    def draw(self, pipeline, projection, view):
+        #self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        sg.drawSceneGraphNode(self.model, pipeline)
         
         
         
-        
+class Axis(object):
+
+    def __init__(self):
+        self.model = es.toGPUShape(bs.createAxis(1))
+        self.show = True
+
+    def toggle(self):
+        self.show = not self.show
+
+    def draw(self, pipeline, projection, view):
+        if not self.show:
+            return
+        glUseProgram(pipeline.shaderProgram)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'model'), 1, GL_TRUE, tr.identity())
+        pipeline.drawShape(self.model, GL_LINES)
         
 #importamos ramdom para que aparezcan de forma aleatoria las nubes
 import random 

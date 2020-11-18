@@ -155,6 +155,28 @@ def createRainbowCube():
 
     return Shape(vertices, indices)
 
+def createColorPyramid(r, g, b):
+
+    # Defining the location and colors of each vertex  of the shape
+    vertices = [
+    #    positions        colors
+        -0.5, -0.5,  -0.5, r, g, b,
+         0.5, -0.5,  -0.5, r, g, b,
+         0.5,  0.5,  -0.5, r, g, b,
+        -0.5,  0.5,  -0.5, r, g, b,
+
+        0, 0, 0.5, r, g, b,]
+
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [
+         0, 1, 2, 2, 3, 0,
+         3, 4, 2, 2, 4, 1,
+         1, 4, 0, 0, 4, 3]
+
+    return Shape(vertices, indices)
+
+
 
 def createColorCube(r, g, b):
 
@@ -268,6 +290,49 @@ def createRainbowNormalsCube():
 
     return Shape(vertices, indices)
 
+
+# falta arreglarlo
+def createColorNormalPyramid(r, g, b):
+    vertices = [
+        #   positions         colors   normals
+    # base
+        -0.5, -0.5, -0.5, r, g, b, 0,0,-1,
+         0.5, -0.5, -0.5, r, g, b, 0,0,-1,
+         0.5,  0.5, -0.5, r, g, b, 0,0,-1,
+        -0.5,  0.5, -0.5, r, g, b, 0,0,-1,
+        
+    # frente
+        0.5, -0.5, -0.5, r, g, b, 1,0,0,
+        0.5,  0.5, -0.5, r, g, b, 1,0,0,
+        0,  0,  0.5, r, g, b, 1,0,0,
+ 
+    # detrás
+        -0.5, -0.5, -0.5, r, g, b, -1,0,0,
+        -0.5,  0.5, -0.5, r, g, b, -1,0,0,
+        -0,  0,  0.5, r, g, b, -1,0,0,
+
+
+    # derecha
+        -0.5, 0.5, -0.5, r, g, b, 0,1,0,
+         0.5, 0.5, -0.5, r, g, b, 0,1,0,
+         0, 0,  0.5, r, g, b, 0,1,0,
+
+    # izq
+        -0.5, -0.5, -0.5, r, g, b, 0,-1,0,
+         0.5, -0.5, -0.5, r, g, b, 0,-1,0,
+         0, 0,  0.5, r, g, b, 0,-1,0,
+        ]
+    # Defining connections among vertices
+    # We have a triangle every 3 indices specified
+    indices = [
+        0, 1, 2,
+        2, 3, 0, # base
+        4,5,6, # frente
+        7,8,9, # detrás
+        10, 11, 12, # derecha  
+        13, 14, 15] # izquierda
+
+    return Shape(vertices, indices)
 
 def createColorNormalsCube(r, g, b):
 

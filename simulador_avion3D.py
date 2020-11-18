@@ -11,9 +11,9 @@ import OpenGL.GL.shaders
 import numpy as np
 import sys
 
-import transformations as tr
+import transformations2 as tr
 import basic_shapes as bs
-import scene_graph as sg
+import scene_graph2 as sg
 import easy_shaders as es
 
 from modelos import *
@@ -118,14 +118,18 @@ if __name__ == "__main__":
     glfw.set_key_callback(window, controlador.on_key)
 
     # Assembling the shader program (pipeline) with both shaders
-    pipeline = es.SimpleTransformShaderProgram()
-    pipelineTexture = es.SimpleTextureTransformShaderProgram()
+    pipeline = es.SimpleModelViewProjectionShaderProgram()
+    pipelineTexture = es.SimpleTextureModelViewProjectionShaderProgram()
     
     # Telling OpenGL to use our shader program
     glUseProgram(pipeline.shaderProgram)
 
     # Setting up the clear screen color
     glClearColor(0.2, 0.2, 0.85, 1.0)
+
+    # As we work in 3D, we need to check which part is in front,
+    # and which one is at the back
+    glEnable(GL_DEPTH_TEST)
 
 
     # Creamos nuestros objetos 
@@ -150,6 +154,14 @@ if __name__ == "__main__":
     # Our shapes here are always fully painted
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
+    # Creamos la camara y la proyección
+    projection = tr.ortho(0, 10, 0, 10, 0.1, 100)
+    view = tr.lookAt(
+        np.array([10, 10, 5]),  # Donde está parada la cámara
+        np.array([0, 0, 0]),  # Donde estoy mirando
+        np.array([0, 0, 1])  # Cual es vector UP
+    )
+
     while not glfw.window_should_close(window):
         
         # Calculamos el dt
@@ -163,7 +175,7 @@ if __name__ == "__main__":
         
 
         # Clearing the screen in both, color and depth
-        glClear(GL_COLOR_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         # Agregamos lo que ocurrirá en la pantalla en orden
         

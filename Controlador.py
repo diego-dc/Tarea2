@@ -5,7 +5,7 @@ Created on Fri Oct  2 12:08:40 2020
 @author: diegc
 """
 
-from modelos import *
+from modelos3D import *
 import glfw
 
 

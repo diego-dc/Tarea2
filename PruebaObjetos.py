@@ -11,46 +11,24 @@ import OpenGL.GL.shaders
 import numpy as np
 import sys
 
-import transformations as tr
+import transformations2 as tr2
 import basic_shapes as bs
-import scene_graph as sg
+import scene_graph2 as sg
 import easy_shaders as es
+from Controlador import * 
 
-from modelos import *
+from modelos3D import *
     
-#Usamos comando controller para llamar el controlador
-#controller = Controlador()
-
-
-
-#fundion para que el programa reaccione al dar comando con las teclas o clicks
-def on_key(window, key, scancode, action, mods):
-
-    if action != glfw.PRESS:
-        return
-    
-    if key == glfw.KEY_UP:
-        controller.moveUp = not controller.moveUp
-
-    if key == glfw.KEY_ESCAPE:
-        sys.exit()
-
-    else:
-        print('Unknown key')
-    
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     # Initialize glfw
     if not glfw.init():
         sys.exit()
 
-    width = 900
-    height = 900
+    width = 800
+    height = 800
 
-
-    window = glfw.create_window(width, height, "Prueba", None, None)
+    window = glfw.create_window(width, height, 'Simulador de avión 3D', None, None)
 
     if not window:
         glfw.terminate()
@@ -58,62 +36,55 @@ if __name__ == "__main__":
 
     glfw.make_context_current(window)
 
-    # Connecting the callback function 'on_key' to handle keyboard events
-    glfw.set_key_callback(window, on_key)
+    # Creamos el controlador
+    controller = Controller()
 
-    # Assembling the shader program (pipeline) with both shaders
-    pipeline = es.SimpleTransformShaderProgram()
-     
+    # Connecting the callback function 'on_key' to handle keyboard events
+    glfw.set_key_callback(window, controller.on_key)
+
+    # Creating shader programs for textures and for colores
+    pipelineTexture = es.SimpleTextureModelViewProjectionShaderProgram()
+    pipeline = es.SimpleModelViewProjectionShaderProgram()
+
     # Telling OpenGL to use our shader program
     glUseProgram(pipeline.shaderProgram)
 
     # Setting up the clear screen color
-    glClearColor(0.2, 0.2, 0.85, 1.0)
+    glClearColor(0.15, 0.15, 0.15, 1.0)
 
+    # As we work in 3D, we need to check which part is in front,
+    # and which one is at the back
+    glEnable(GL_DEPTH_TEST)
 
-    # Creamos nuestros objetos 
-    avion = plane()
-    cielo = cielo()
-    pastito = pasto()
-    #nubes = createNubes()
-    montanas = createMontanas()
-    panel = panel_de_vuelo()
-    perilla = perilla_velocimetro()
-    indicador = indicadores()
-    nube = nubes()
-    botones = botones()
-    # definimos un tiempo para el movimiento de objetos
-    
-    t0 = 0
-    
-    # Our shapes here are always fully painted
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
+    # Creamos los objetos
+    axis = Axis()
+    avion = plane()
+
+    # Creamos la camara y la proyección
+    projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)
+    # Generaremos diversas cámaras.
+    static_view = tr2.lookAt(
+            np.array([2.5, 6, 5]), # eye
+            np.array([0,0,0]), # at
+            np.array([0,0,1])  # up
+        )
+    view = static_view
+
     while not glfw.window_should_close(window):
-        
-        
+
         # Using GLFW to check for input events
         glfw.poll_events()
 
         # Clearing the screen in both, color and depth
-        glClear(GL_COLOR_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        # Agregamos lo que ocurrirá en la pantalla en orden
-        
-        
-        cielo.draw(pipeline)
-        pastito.draw(pipeline)
-        montanas.draw(pipeline)
-        avion.draw( pipeline)
-        panel.draw(pipeline)
-        perilla.draw(pipeline)
-        indicador.draw(pipeline)
-        nube.draw(pipeline)
-        botones.draw(pipeline)
-        
-        # Once the render is done, buffers are swapped, showing only the complete scene.
+        # Dibujamos
+        axis.draw(pipeline, projection, view)
+        avion.draw(pipeline, projection, view)
+
+        # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
-        
 
-    
     glfw.terminate()
