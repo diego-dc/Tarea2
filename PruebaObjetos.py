@@ -92,13 +92,6 @@ if __name__ == '__main__':
     # Creamos la camara y la proyección
     projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)
 
-    static_view = tr2.lookAt(
-            np.array([-3, -0.5, 2]), # eye
-            np.array([0,0,0]), # at
-            np.array([0,0,1])  # up
-        )
-    view2 = static_view
-
     while not glfw.window_should_close(window):
 
         # Using GLFW to check for input events
@@ -107,13 +100,22 @@ if __name__ == '__main__':
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+        # Crearemos las posiciones en que estará la cámara
+        cam_x = avion.pos_x - 0.5
+        if avion.camara1:
+            cam_y = 0
+        elif avion.camara2:
+            cam_y = 0.3
+        elif avion.camara3:
+            cam_y = -0.3
+        cam_z = avion.pos_z
+
         # Generaremos diversas cámaras.
-        static_view = tr2.lookAt(
-            np.array([avion.pos_x - 0.5, 0, 0.5]), # eye
-            np.array([avion.pos_x + 0.5,avion.pos_y , avion.pos_z]), # at
+        view = tr2.lookAt(
+            np.array([cam_x, cam_y, 0.5]), # eye
+            np.array([avion.pos_x + 0.5, avion.pos_y * 0.1, avion.pos_z * 0.8]), # at
             np.array([0,0,1])  # up
         )
-        view = static_view
 
         # Dibujamos
         axis.draw(pipeline, projection, view)

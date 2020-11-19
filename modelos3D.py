@@ -255,6 +255,10 @@ class plane(object):
         self.prender_apagar_motor = False
         self.prender_apagar_panel = False
         self.prender_apagar_todo = False
+
+        self.camara1 = True
+        self.camara2 = False
+        self.camara3 = False
         
         self.caida_libre = False
         self.youdied = False
