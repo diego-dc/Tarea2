@@ -197,8 +197,6 @@ if __name__ == "__main__":
                 
         elif avion.moverAvion:
                 
-                avion.Move_right_or_left()
-                avion.Move_up_or_down()
                 simulador_en_mov()
                 if 28 < avion.cabeceo_angulo < 35 or -35 < avion.cabeceo_angulo < -28:
                     print ("CUIDADO. PERDIENDO ESTABILIDAD")

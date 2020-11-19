@@ -18,6 +18,28 @@ import easy_shaders as es
 from Controlador import * 
 
 from modelos3D import *
+
+def simulador_en_mov():
+    
+     #avion.PresionarBotones(perillas, indicadores, botones)
+     #perillas.perillas_accion(avion, pipeline)
+     #indicadores.indicadores_accion(avion, pipeline)
+     #nubes.crear_nubes() #crea nubes aleatoriamente
+     #montanas.crear_montanas()
+     
+     
+     
+     
+     #cielo.draw(pipeline)
+     #montanas.DrawMoving_x(pipeline, dt)
+     #pastito.draw(pipeline)
+     #nubes.DrawMoving_x(pipeline, dt)
+     avion.en_aire = True
+     avion.draw(pipeline, projection, view)
+     #panel.draw(pipeline)
+     #indicadores.draw(pipeline)
+     #perillas.draw(pipeline)
+     #botones.presionar_botones(pipeline)
     
 if __name__ == '__main__':
 
@@ -37,10 +59,12 @@ if __name__ == '__main__':
     glfw.make_context_current(window)
 
     # Creamos el controlador
-    controller = Controller()
+    controlador = Controller()
+
+    
 
     # Connecting the callback function 'on_key' to handle keyboard events
-    glfw.set_key_callback(window, controller.on_key)
+    glfw.set_key_callback(window, controlador.on_key)
 
     # Creating shader programs for textures and for colores
     pipelineTexture = es.SimpleTextureModelViewProjectionShaderProgram()
@@ -62,15 +86,18 @@ if __name__ == '__main__':
     axis = Axis()
     avion = plane()
 
+    # Le entregamos el modelo que trabajara el controlador
+    controlador.set_model(avion)
+
     # Creamos la camara y la proyección
     projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)
-    # Generaremos diversas cámaras.
+
     static_view = tr2.lookAt(
-            np.array([2.5, 6, 5]), # eye
+            np.array([-3, -0.5, 2]), # eye
             np.array([0,0,0]), # at
             np.array([0,0,1])  # up
         )
-    view = static_view
+    view2 = static_view
 
     while not glfw.window_should_close(window):
 
@@ -80,9 +107,17 @@ if __name__ == '__main__':
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+        # Generaremos diversas cámaras.
+        static_view = tr2.lookAt(
+            np.array([avion.pos_x - 0.5, 0, 0.5]), # eye
+            np.array([avion.pos_x + 0.5,avion.pos_y , avion.pos_z]), # at
+            np.array([0,0,1])  # up
+        )
+        view = static_view
+
         # Dibujamos
         axis.draw(pipeline, projection, view)
-        avion.draw(pipeline, projection, view)
+        simulador_en_mov()
 
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)

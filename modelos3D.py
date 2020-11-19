@@ -213,10 +213,12 @@ class plane(object):
         cabeceo_nodo = sg.SceneGraphNode("cabeceo_nodo")
         cabeceo_nodo.childs += [Avion]
         
+        inclinacion_avion = sg.SceneGraphNode("inclinacion_avion")
+        inclinacion_avion.childs += [cabeceo_nodo]
         
         scaledPlane = sg.SceneGraphNode("Avion")
         scaledPlane.transform = tr.uniformScale(0.1)
-        scaledPlane.childs += [cabeceo_nodo]
+        scaledPlane.childs += [inclinacion_avion]
         
         
         AvionEnPantalla = sg.SceneGraphNode("AvionEnPantalla")  
@@ -224,19 +226,23 @@ class plane(object):
 
         self.model = AvionEnPantalla
         self.cabeceo_nodo = cabeceo_nodo
+        self.inclinacion_lateral = inclinacion_avion
         
+        self.angulo_inclinacion = 0
         self.cabeceo_angulo = 0
         self.cabeceo = False
         self.cabeceo_up = False
         self.cabeceo_down = False
         
         self.pos_x = -0.85
-        self.pos_y = -0.175
+        self.pos_z = -0.175
+        self.pos_y = 0
+
+        self.moverAvion = False
         self.move_up = False
         self.move_down = False
         self.move_right = False
         self.move_left = False
-        self.moverAvion = False
         
         self.velocidad = 0
         self.acelerar = False
@@ -258,7 +264,6 @@ class plane(object):
     
     # Esta función restaura la rotación del avión para que se vea derecho
     def pos_inicial(self):
-
         if self.cabeceo_up == True:
             self.cabeceo_up = False
             if  0 <= np.radians(self.cabeceo_angulo) < 0.2:
@@ -267,7 +272,7 @@ class plane(object):
                 self.moverAvion = False
                 self.cabeceo_angulo = 0
                 self.cabeceo_nodo.transform = tr.rotationZ(np.radians(0))
-            self.update(self.pos_x, self.pos_y)
+            self.update(self.pos_x, self.pos_y, self.pos_z)
         elif self.cabeceo_down == True:
             self.cabeceo_down = False
             if  -0.2 < np.radians(self.cabeceo_angulo) <= 0:
@@ -276,7 +281,13 @@ class plane(object):
                 self.moverAvion = False
                 self.cabeceo_angulo = 0
                 self.cabeceo_nodo.transform = tr.rotationZ(np.radians(0))
-            self.update(self.pos_x, self.pos_y)
+            self.update(self.pos_x, self.pos_y, self.pos_z)
+        elif self.move_right or self.move_left:
+            self.move_right = False
+            self.move_left = False
+            self.moverAvion = False
+            self.angulo_inclinacion = 0
+            self.inclinacion_lateral.transform = tr.rotationZ(np.radians(0))
         elif self.acelerar or self.frenar :
             self.moverAvion = False
             self.acelerar = False
@@ -285,91 +296,97 @@ class plane(object):
             self.move_left = False
     
     # Con esta función actualizaremos la posición del avión para cuando se mueva
-    def update(self, x, y):
+    def update(self, x, y, z):
         self.pos_x = x
         self.pos_y = y
-        self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
+        self.pos_z = z
+        self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
     
     # Produce la rotación del avión para el efecto de cabeceo       
     def Cabeceo(self):
         if self.despegar == True:
-            self.cabeceo_nodo.transform = tr.rotationZ(np.radians(25))
+            self.cabeceo_nodo.transform = tr.rotationY(np.radians(25))
         elif self.aterrizar == True:
-            self.cabeceo_nodo.transform = tr.rotationZ(np.radians(-25))
+            self.cabeceo_nodo.transform = tr.rotationY(np.radians(-25))
         elif self.caida_libre:
-            self.cabeceo_nodo.transform = tr.rotationZ(np.radians(-45))
+            self.cabeceo_nodo.transform = tr.rotationY(np.radians(-45))
         else:
-            if self.cabeceo_up == True:
-                self.cabeceo_angulo += 0.3
-                self.cabeceo_nodo.transform = tr.rotationZ(np.radians(self.cabeceo_angulo))
-                if self.cabeceo_angulo > 35.5:
-                    self.caida_libre = True
-            elif self.cabeceo_down == True:
+            if self.move_right:
+                self.angulo_inclinacion += 0.3
+                self.inclinacion_lateral.transform = tr.rotationX(np.radians(self.angulo_inclinacion))
+            if self.move_left:
+                self.angulo_inclinacion -= 0.3
+                self.inclinacion_lateral.transform = tr.rotationX(np.radians(self.angulo_inclinacion))
+            elif self.cabeceo_up == True:
                 self.cabeceo_angulo -= 0.3
-                self.cabeceo_nodo.transform = tr.rotationZ(np.radians(self.cabeceo_angulo))
-                if self.cabeceo_angulo < -35.5:
-                     self.caida_libre = True
+                self.cabeceo_nodo.transform = tr.rotationY(np.radians(self.cabeceo_angulo))
+                #if self.cabeceo_angulo > 35.5:
+                    #self.caida_libre = True
+            elif self.cabeceo_down == True:
+                self.cabeceo_angulo += 0.3
+                self.cabeceo_nodo.transform = tr.rotationY(np.radians(self.cabeceo_angulo))
+                #if self.cabeceo_angulo < -35.5:
+                     #self.caida_libre = True
             else:
-                self.cabeceo_nodo.transform = tr.rotationZ(np.radians(self.cabeceo_angulo))    
+                self.cabeceo_nodo.transform = tr.rotationY(np.radians(self.cabeceo_angulo))    
                 
     # Nos actualiza el valor de verdad del cabeceo y movimiento cuando se quiera mover el avion hacia arriba
-    # Nos actualiza el valor de verdad del cabeceo y movimiento cuando se quiera mover el avion hacia abajo 
-    def Move_up_or_down(self):
-        if self.move_up == True:
-            self.Cabeceo()
-            self.posAvion()
-        elif self.move_down == True:
-            self.Cabeceo()
-            self.posAvion()
-        
-        
+    # Nos actualiza el valor de verdad del cabeceo y movimiento cuando se quiera mover el avion hacia abajo
     # Nos actualiza el valor de verdad del movimiento cuando se quiera mover el avion hacia la derecha 
-    # Nos actualiza el valor de verdad del cabeceo y movimiento cuando se quiera mover el avion hacia abajo  
-    def Move_right_or_left(self):
-        if self.acelerar:
-            self.move_right = True
+    # Nos actualiza el valor de verdad del movimiento cuando se quiera mover el avion hacia la izquierda
+    # También cuando se acelera o se frena  
+    def Move_plane(self):
+        if self.move_up or self.move_down:
+            self.Cabeceo()
             self.posAvion()
-        elif self.frenar:
-            self.move_left = True
+        elif self.acelerar or self.frenar:
+            self.posAvion()
+        elif self.move_right or self.move_left:
+            self.Cabeceo()
             self.posAvion()
         
-
         
     # La función que permitirá que el avión se mueva actualizando el movimiento del avión     
     def posAvion(self):
         if self.despegar == True:
-            self.pos_y += 0.002
-            self.update(self.pos_x, self.pos_y)
+            self.pos_z += 0.002
+            self.update(self.pos_x, self.pos_y, self.pos_z)
         elif self.aterrizar == True:
-            self.pos_y -= 0.002
-            self.update(self.pos_x, self.pos_y)
+            self.pos_z -= 0.002
+            self.update(self.pos_x, self.pos_y, self.pos_z)
         elif self.caida_libre:
-            self.pos_y -= 0.005
-            self.update(self.pos_x, self.pos_y)
+            self.pos_z -= 0.005
+            self.update(self.pos_x, self.pos_y, self.pos_z)
         elif self.move_up == True:
-            self.pos_y += 0.002 * (self.cabeceo_angulo * 0.035)
-            self.update(self.pos_x, self.pos_y)
-            if self.pos_y >= 0.8:
-                self.caida_libre = True
+            self.pos_z += -(0.002 * (self.cabeceo_angulo * 0.035))
+            self.update(self.pos_x, self.pos_y, self.pos_z)
+            #if self.pos_z >= 0.8:
+                #self.caida_libre = True
         elif self.move_down == True:
-            self.pos_y -= -(0.002 * (self.cabeceo_angulo * 0.035 ))
-            self.update(self.pos_x, self.pos_y)
-            if self.pos_y <= -0.12 and self.en_aire:
-                self.caida_libre = True
+            self.pos_z -= 0.002 * (self.cabeceo_angulo * 0.035 )
+            self.update(self.pos_x, self.pos_y, self.pos_z)
+            #if self.pos_z <= -0.12 and self.en_aire:
+                #self.caida_libre = True
         elif self.acelerar == True and self.prender_apagar_motor == True:
             self.pos_x += 0.0008
             self.velocidad += 0.1
-            self.update(self.pos_x, self.pos_y)
-            if self.velocidad > 145:
-                self.caida_libre = True
+            self.update(self.pos_x, self.pos_y, self.pos_z)
+            #if self.velocidad > 145:
+                #self.caida_libre = True
         elif self.frenar == True and self.prender_apagar_motor == True:
             self.pos_x -= 0.0004
             self.velocidad -= 0.1
-            self.update(self.pos_x, self.pos_y)
-            if self.velocidad < 30 and self.en_aire:
-                self.caida_libre = True
+            self.update(self.pos_x, self.pos_y, self.pos_z)
+            #if self.velocidad < 30 and self.en_aire:
+                #self.caida_libre = True
+        elif self.move_right:
+            self.pos_y -= 0.002 * (self.angulo_inclinacion * 0.035 )
+            self.update(self.pos_x, self.pos_y, self.pos_z)
+        elif self.move_left:
+            self.pos_y += -(0.002 * (self.angulo_inclinacion * 0.035))
+            self.update(self.pos_x, self.pos_y, self.pos_z)
         else:
-            self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
+            self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
     
     def velocidad_avion(self):
         if self.pos_y > 0.1:
@@ -467,7 +484,8 @@ class plane(object):
     
     
     def draw(self, pipeline, projection, view):
-        #self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
+        self.Move_plane()
+        self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
@@ -527,7 +545,7 @@ class nubes(object):
         
     def update_y(self):
         if self.elevar:
-            self.pos_y_random += 0.002
+            self.pos_z_random += 0.002
             self.model.transform = tr.translate(self.pos_x, self.pos_y_random, 0)
         elif self.descender:
             self.pos_y_random -= 0.002

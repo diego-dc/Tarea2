@@ -29,6 +29,7 @@ class Controller():
         elif (action == glfw.PRESS or action == glfw.REPEAT):
             if( key == glfw.KEY_UP):
                 if self.model.en_aire:
+                    print("cabeceo Arriba")
                     self.model.cabeceo_up = True
                     self.model.moverAvion = True
                     if self.model.cabeceo_angulo >= 0:
@@ -43,6 +44,26 @@ class Controller():
                     self.model.moverAvion = True
                     if self.model.cabeceo_angulo <= 0:
                         self.model.move_down = True
+                else:
+                    print("No se puede maniobrar el avión en tierra")
+
+            elif (key == glfw.KEY_RIGHT):
+                if self.model.en_aire:
+                    print("Girando Der.")
+                    self.model.move_right = True
+                    self.model.moverAvion = True
+                    #if self.model.cabeceo_angulo <= 0:
+                        #self.model.move_down = True
+                else:
+                    print("No se puede maniobrar el avión en tierra")
+
+            elif (key == glfw.KEY_LEFT):
+                if self.model.en_aire:
+                    print("Girando Izq.")
+                    self.model.move_left = True
+                    self.moverAvion = True
+                    #if self.model.cabeceo_angulo <= 0:
+                        #self.model.move_down = True
                 else:
                     print("No se puede maniobrar el avión en tierra")
                     
