@@ -113,8 +113,8 @@ if __name__ == '__main__':
 
         # Generaremos diversas cámaras.
         view = tr2.lookAt(
-            np.array([avion.pos_x - 0.5, cam_y, 1]), # eye
-            np.array([avion.pos_x + 0.5, avion.pos_y, avion.pos_z]), # at
+            np.array([avion.pos_x - 0.5, cam_y, 0.2]), # eye
+            np.array([avion.pos_x + 0.5, avion.pos_y, 0.2]), # at
             np.array([0,0,1])  # up
         )
 
