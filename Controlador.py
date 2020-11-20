@@ -50,20 +50,20 @@ class Controller():
             elif (key == glfw.KEY_RIGHT):
                 if self.model.en_aire:
                     print("Girando Der.")
-                    self.model.move_right = True
+                    self.model.inclinacion_der = True
                     self.model.moverAvion = True
-                    #if self.model.cabeceo_angulo <= 0:
-                        #self.model.move_down = True
+                    if self.model.angulo_inclinacion >= 0:
+                        self.model.move_right = True
                 else:
                     print("No se puede maniobrar el avión en tierra")
 
             elif (key == glfw.KEY_LEFT):
                 if self.model.en_aire:
                     print("Girando Izq.")
-                    self.model.move_left = True
+                    self.model.inclinacion_izq = True
                     self.moverAvion = True
-                    #if self.model.cabeceo_angulo <= 0:
-                        #self.model.move_down = True
+                    if self.model.angulo_inclinacion <= 0:
+                        self.model.move_left = True
                 else:
                     print("No se puede maniobrar el avión en tierra")
                     
@@ -98,6 +98,20 @@ class Controller():
                 elif self.model.prender_apagar_panel == True:
                     print("Apagando Panel")
                 self.model.prender_apagar_panel = not self.model.prender_apagar_panel
+
+            elif (key == glfw.KEY_C):
+                if self.model.camara1:
+                    print("cambiando camara")
+                    self.model.camara1 = False
+                    self.model.camara2 = True
+                elif self.model.camara2:
+                    print("cambiando camara")
+                    self.model.camara2 = False
+                    self.model.camara3 = True
+                elif self.model.camara3:
+                    print("cambiando camara")
+                    self.model.camara3 = False
+                    self.model.camara1 = True
                 
                 
             

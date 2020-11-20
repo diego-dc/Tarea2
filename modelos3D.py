@@ -229,6 +229,9 @@ class plane(object):
         self.inclinacion_lateral = inclinacion_avion
         
         self.angulo_inclinacion = 0
+        self.inclinacion_izq = False
+        self.inclinacion_der = False
+
         self.cabeceo_angulo = 0
         self.cabeceo = False
         self.cabeceo_up = False
@@ -270,7 +273,7 @@ class plane(object):
     def pos_inicial(self):
         if self.cabeceo_up == True:
             self.cabeceo_up = False
-            if  0 <= np.radians(self.cabeceo_angulo) < 0.2:
+            if  0 <= np.radians(self.cabeceo_angulo) < 0.25:
                 self.move_up = False
                 self.move_down = False
                 self.moverAvion = False
@@ -279,7 +282,7 @@ class plane(object):
             self.update(self.pos_x, self.pos_y, self.pos_z)
         elif self.cabeceo_down == True:
             self.cabeceo_down = False
-            if  -0.2 < np.radians(self.cabeceo_angulo) <= 0:
+            if  -0.25 < np.radians(self.cabeceo_angulo) <= 0:
                 self.move_down = False
                 self.move_up = False
                 self.moverAvion = False
@@ -287,11 +290,16 @@ class plane(object):
                 self.cabeceo_nodo.transform = tr.rotationZ(np.radians(0))
             self.update(self.pos_x, self.pos_y, self.pos_z)
         elif self.move_right or self.move_left:
-            self.move_right = False
-            self.move_left = False
-            self.moverAvion = False
-            self.angulo_inclinacion = 0
-            self.inclinacion_lateral.transform = tr.rotationZ(np.radians(0))
+            self.inclinacion_izq = False
+            self.inclinacion_der = False
+            print(np.radians(self.angulo_inclinacion))
+            if  0 <= np.radians(self.angulo_inclinacion) < 0.5 or -0.5 < np.radians(self.angulo_inclinacion) <= 0:
+                print("xd")
+                self.move_right = False
+                self.move_left = False
+                self.moverAvion = False
+                self.angulo_inclinacion = 0
+                self.inclinacion_lateral.transform = tr.rotationZ(np.radians(0))
         elif self.acelerar or self.frenar :
             self.moverAvion = False
             self.acelerar = False
@@ -315,18 +323,18 @@ class plane(object):
         elif self.caida_libre:
             self.cabeceo_nodo.transform = tr.rotationY(np.radians(-45))
         else:
-            if self.move_right:
+            if self.inclinacion_der:
                 self.angulo_inclinacion += 0.3
                 self.inclinacion_lateral.transform = tr.rotationX(np.radians(self.angulo_inclinacion))
-            if self.move_left:
+            if self.inclinacion_izq:
                 self.angulo_inclinacion -= 0.3
                 self.inclinacion_lateral.transform = tr.rotationX(np.radians(self.angulo_inclinacion))
-            elif self.cabeceo_up == True:
+            if self.cabeceo_up == True:
                 self.cabeceo_angulo -= 0.3
                 self.cabeceo_nodo.transform = tr.rotationY(np.radians(self.cabeceo_angulo))
                 #if self.cabeceo_angulo > 35.5:
                     #self.caida_libre = True
-            elif self.cabeceo_down == True:
+            if self.cabeceo_down == True:
                 self.cabeceo_angulo += 0.3
                 self.cabeceo_nodo.transform = tr.rotationY(np.radians(self.cabeceo_angulo))
                 #if self.cabeceo_angulo < -35.5:
@@ -361,13 +369,21 @@ class plane(object):
         elif self.caida_libre:
             self.pos_z -= 0.005
             self.update(self.pos_x, self.pos_y, self.pos_z)
-        elif self.move_up == True:
-            self.pos_z += -(0.002 * (self.cabeceo_angulo * 0.035))
+        elif self.move_up:
+            if self.move_left:
+                self.pos_y += -(0.001 * (self.angulo_inclinacion * 0.03))
+            elif self.move_right:
+                self.pos_y -= 0.001 * (self.angulo_inclinacion * 0.03 )
+            self.pos_z += -(0.001 * (self.cabeceo_angulo * 0.03))
             self.update(self.pos_x, self.pos_y, self.pos_z)
             #if self.pos_z >= 0.8:
                 #self.caida_libre = True
-        elif self.move_down == True:
-            self.pos_z -= 0.002 * (self.cabeceo_angulo * 0.035 )
+        elif self.move_down:
+            if self.move_left:
+                self.pos_y += -(0.001 * (self.angulo_inclinacion * 0.03))
+            elif self.move_right:
+                self.pos_y -= 0.001 * (self.angulo_inclinacion * 0.03)
+            self.pos_z -= 0.001 * (self.cabeceo_angulo * 0.03 )
             self.update(self.pos_x, self.pos_y, self.pos_z)
             #if self.pos_z <= -0.12 and self.en_aire:
                 #self.caida_libre = True
@@ -384,10 +400,10 @@ class plane(object):
             #if self.velocidad < 30 and self.en_aire:
                 #self.caida_libre = True
         elif self.move_right:
-            self.pos_y -= 0.002 * (self.angulo_inclinacion * 0.035 )
+            self.pos_y -= 0.001 * (self.angulo_inclinacion * 0.03)
             self.update(self.pos_x, self.pos_y, self.pos_z)
         elif self.move_left:
-            self.pos_y += -(0.002 * (self.angulo_inclinacion * 0.035))
+            self.pos_y += -(0.001 * (self.angulo_inclinacion * 0.03))
             self.update(self.pos_x, self.pos_y, self.pos_z)
         else:
             self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
