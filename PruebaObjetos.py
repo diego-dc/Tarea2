@@ -34,8 +34,10 @@ def simulador_en_mov():
      #montanas.DrawMoving_x(pipeline, dt)
      #pastito.draw(pipeline)
      #nubes.DrawMoving_x(pipeline, dt)
+     avion.prender_apagar_motor = True
      avion.en_aire = True
      avion.draw(pipeline, projection, view)
+     montana.draw(pipeline, projection, view)
      #panel.draw(pipeline)
      #indicadores.draw(pipeline)
      #perillas.draw(pipeline)
@@ -85,6 +87,7 @@ if __name__ == '__main__':
     # Creamos los objetos
     axis = Axis()
     avion = plane()
+    montana = mountain()
 
     # Le entregamos el modelo que trabajara el controlador
     controlador.set_model(avion)
@@ -101,19 +104,17 @@ if __name__ == '__main__':
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
         # Crearemos las posiciones en que estará la cámara
-        cam_x = avion.pos_x - 0.5
         if avion.camara1:
-            cam_y = 0
+            cam_y = avion.pos_y *0.1
         elif avion.camara2:
             cam_y = 0.3
         elif avion.camara3:
             cam_y = -0.3
-        cam_z = avion.pos_z
 
         # Generaremos diversas cámaras.
         view = tr2.lookAt(
-            np.array([cam_x, cam_y, 0.5]), # eye
-            np.array([avion.pos_x + 0.5, avion.pos_y * 0.1, avion.pos_z * 0.8]), # at
+            np.array([avion.pos_x - 0.5, cam_y, 1]), # eye
+            np.array([avion.pos_x + 0.5, avion.pos_y, avion.pos_z]), # at
             np.array([0,0,1])  # up
         )
 

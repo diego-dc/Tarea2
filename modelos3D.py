@@ -238,8 +238,8 @@ class plane(object):
         self.cabeceo_down = False
         
         self.pos_x = -0.85
-        self.pos_z = -0.175
         self.pos_y = 0
+        self.pos_z = 0
 
         self.moverAvion = False
         self.move_up = False
@@ -646,8 +646,8 @@ class createNubes(object):
 # Creamos el objeto de las montañas con nieve.
 class mountain(object):
     def __init__(self):
-        gpuTrianguloCafe = es.toGPUShape(bs.createColorTriangle(0.7,0.4,0))
-        gpuTrianguloBlanco = es.toGPUShape(bs.createColorTriangle(1,1,1))
+        gpuTrianguloCafe = es.toGPUShape(bs.createColorPyramid(0.7,0.4,0))
+        #gpuTrianguloBlanco = es.toGPUShape(bs.createColorTriangle(1,1,1))
         
         # El fondo que será café, lo ajustamos y trasladamos
         montana_fondo = sg.SceneGraphNode("montana_fondo")
@@ -655,58 +655,58 @@ class mountain(object):
         montana_fondo.childs += [gpuTrianguloCafe]
         
         montana_tras = sg.SceneGraphNode("montana_tras")
-        montana_tras.transform = tr.translate(0,0.2,0)
+        montana_tras.transform = tr.translate(0,0,0)
         montana_tras.childs += [montana_fondo]
         
         #la nieve: TAMAÑO
-        nieve1 = sg.SceneGraphNode("nieve1")
-        nieve1.transform = tr.uniformScale(0.4)
-        nieve1.childs += [gpuTrianguloBlanco]
+       # nieve1 = sg.SceneGraphNode("nieve1")
+       # nieve1.transform = tr.uniformScale(0.4)
+       # nieve1.childs += [gpuTrianguloBlanco]
         
-        nieve2 = sg.SceneGraphNode("nieve2")
-        nieve2.transform = tr.uniformScale(0.2)
-        nieve2.childs += [gpuTrianguloBlanco]
+       # nieve2 = sg.SceneGraphNode("nieve2")
+       # nieve2.transform = tr.uniformScale(0.2)
+       # nieve2.childs += [gpuTrianguloBlanco]
         
-        nieve3 = sg.SceneGraphNode("nieve3")
-        nieve3.transform = tr.uniformScale(0.15)
-        nieve3.childs += [gpuTrianguloBlanco]
+       # nieve3 = sg.SceneGraphNode("nieve3")
+       # nieve3.transform = tr.uniformScale(0.15)
+      #  nieve3.childs += [gpuTrianguloBlanco]
         
-        nieve4 = sg.SceneGraphNode("nieve4")
-        nieve4.transform = tr.uniformScale(0.15)
-        nieve4.childs += [gpuTrianguloBlanco]
+       # nieve4 = sg.SceneGraphNode("nieve4")
+       # nieve4.transform = tr.uniformScale(0.15)
+       # nieve4.childs += [gpuTrianguloBlanco]
         
         # la nieve: ROTACION
-        nieve2_rot = sg.SceneGraphNode("nieve2_rot")
-        nieve2_rot.transform = tr.rotationZ(np.radians(180))
-        nieve2_rot.childs += [nieve2]
+      #  nieve2_rot = sg.SceneGraphNode("nieve2_rot")
+       # nieve2_rot.transform = tr.rotationZ(np.radians(180))
+       # nieve2_rot.childs += [nieve2]
         
-        nieve3_rot = sg.SceneGraphNode("nieve3_rot")
-        nieve3_rot.transform = tr.rotationZ(np.radians(180))
-        nieve3_rot.childs += [nieve3]
+       # nieve3_rot = sg.SceneGraphNode("nieve3_rot")
+      #  nieve3_rot.transform = tr.rotationZ(np.radians(180))
+       # nieve3_rot.childs += [nieve3]
         
-        nieve4_rot = sg.SceneGraphNode("nieve4_rot")
-        nieve4_rot.transform = tr.rotationZ(np.radians(180))
-        nieve4_rot.childs += [nieve4]
+       # nieve4_rot = sg.SceneGraphNode("nieve4_rot")
+       # nieve4_rot.transform = tr.rotationZ(np.radians(180))
+       # nieve4_rot.childs += [nieve4]
         
         # la nieve: TRASLACION
-        nieve1_tras = sg.SceneGraphNode("nieve1_tras")
-        nieve1_tras.transform = tr.translate(0, 0.4, 0)
-        nieve1_tras.childs += [nieve1]
+      #  nieve1_tras = sg.SceneGraphNode("nieve1_tras")
+      #  nieve1_tras.transform = tr.translate(0, 0.4, 0)
+      #  nieve1_tras.childs += [nieve1]
         
-        nieve2_tras = sg.SceneGraphNode("nieve2_tras")
-        nieve2_tras.transform = tr.translate(0, 0.1, 0)
-        nieve2_tras.childs += [nieve2_rot]
+       # nieve2_tras = sg.SceneGraphNode("nieve2_tras")
+      #  nieve2_tras.transform = tr.translate(0, 0.1, 0)
+      #  nieve2_tras.childs += [nieve2_rot]
         
-        nieve3_tras = sg.SceneGraphNode("nieve3_tras")
-        nieve3_tras.transform = tr.translate(0.125, 0.125, 0)
-        nieve3_tras.childs += [nieve3_rot]
+      #  nieve3_tras = sg.SceneGraphNode("nieve3_tras")
+       # nieve3_tras.transform = tr.translate(0.125, 0.125, 0)
+      #  nieve3_tras.childs += [nieve3_rot]
         
-        nieve4_tras = sg.SceneGraphNode("nieve4_tras")
-        nieve4_tras.transform = tr.translate(-0.125, 0.125, 0)
-        nieve4_tras.childs += [nieve4_rot]
+       # nieve4_tras = sg.SceneGraphNode("nieve4_tras")
+       # nieve4_tras.transform = tr.translate(-0.125, 0.125, 0)
+       # nieve4_tras.childs += [nieve4_rot]
         
         montana = sg.SceneGraphNode("montana")
-        montana.childs += [montana_tras, nieve1_tras, nieve2_tras, nieve3_tras, nieve4_tras]
+        montana.childs += [montana_tras]
         
         montana_tam = sg.SceneGraphNode("montana_tam")
         montana_tam.transform = tr.scale(1.1,random.choice([1.2, 0.9,0.8,0.7,0.6,0.5,0.4]),1)
@@ -719,10 +719,10 @@ class mountain(object):
         montana_final = sg.SceneGraphNode("montana_final")
         montana_final.childs += [montana_tam]
         
-        self.model = montana_final
+        self.model = montana
         #Le asignamos posición para poder modificarla
-        self.pos_x = 1.1
-        self.pos_y = -0.2
+        self.pos_x = 0
+        self.pos_y = 0
         self.elevar = False
         self.descender = False
         
@@ -739,9 +739,11 @@ class mountain(object):
             self.pos_y -= 0.002
             self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
         
-    def draw(self, pipeline):
+    def draw(self, pipeline, projection, view):
         self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        sg.drawSceneGraphNode(self.model, pipeline)
         
     
 class createMontanas(object):
