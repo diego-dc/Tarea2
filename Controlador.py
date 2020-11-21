@@ -13,11 +13,41 @@ class Controller():
     
     def __init__(self):
         self.model = None
+        self.position = np.zeros(3)
+        self.old_pos = 0, 0
+        self.theta = np.pi * 0.5
+        self.phi = 0.
+        self.mouse_sensitivity = 1.
         
     def set_model(self, m):
         self.model = m
         
-    #fundion para que el programa reaccione al dar comando con las teclas o clicks
+
+    def update_angle(self, dx, dz, dt):
+        # multiplo_inicial = self.theta // np.pi
+
+        #self.phi -= dx * dt * self.mouse_sensitivity
+        self.phi = 0
+        theta_0 = self.theta
+
+        dtheta = dz * dt * self.mouse_sensitivity
+        self.theta += dtheta
+
+        if self.theta < 0:
+            self.theta = 0.01
+
+        elif self.theta > np.pi:
+            self.theta = 3.14159
+
+        else:
+            pass
+
+        # if (self.theta + dtheta) // np.pi == multiplo_inicial:
+        #     self.theta += dtheta
+
+        return self.phi, self.theta
+
+    #funcion para que el programa reaccione al dar comando con las teclas o clicks
     def on_key(self, window, key, scancode, action, mods):
 
         if not (action == glfw.PRESS or action == glfw.RELEASE):
@@ -136,3 +166,30 @@ class Controller():
         # Cualquier otra tecla no la reconoce    
         else:
             print('Unknown key')
+
+        def move(self, window, viewPos, forward, new_side, dt):
+
+            if (glfw.get_key(window, glfw.KEY_A) == glfw.PRESS):
+                self.position[0] -= 2 * dt
+                viewPos += new_side * dt * 10
+
+            elif (glfw.get_key(window, glfw.KEY_D) == glfw.PRESS):
+                self.position[0] += 2* dt
+                viewPos -= new_side * dt * 10
+
+            elif (glfw.get_key(window, glfw.KEY_W) == glfw.PRESS):
+                self.position[1] += 2* dt
+                viewPos += forward * dt * 10
+
+            elif (glfw.get_key(window, glfw.KEY_S) == glfw.PRESS):
+                self.position[1] -= 2* dt
+                viewPos -= forward * dt * 10
+
+            elif (glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS):
+                self.position[2] += 2* dt
+                viewPos[2] += 2*dt 
+
+            else:
+                pass
+
+            return self.position

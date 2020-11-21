@@ -63,6 +63,7 @@ if __name__ == '__main__':
     # Creamos el controlador
     controlador = Controller()
 
+
     
 
     # Connecting the callback function 'on_key' to handle keyboard events
@@ -95,6 +96,19 @@ if __name__ == '__main__':
     # Creamos la camara y la proyección
     projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)
 
+    # Initializing first variables 
+    t0 = glfw.get_time()
+    at = np.zeros(3)
+    z0 = 0.
+    y0 = 0.
+    phi = np.pi * 0.25
+    theta = 0
+    up = np.array((0., 0., 1.))
+    # Donde estará la cámara:
+    viewPos = np.zeros(3)
+    viewPos[0] = avion.pos_x - 0.3
+    viewPos[2] = 0.5
+
     while not glfw.window_should_close(window):
 
         # Using GLFW to check for input events
@@ -103,20 +117,65 @@ if __name__ == '__main__':
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        # Crearemos las posiciones en que estará la cámara
-        if avion.camara1:
-            cam_y = avion.pos_y *0.1
-        elif avion.camara2:
-            cam_y = 0.3
-        elif avion.camara3:
-            cam_y = -0.3
+        # Getting the time difference from the previous iteration
+        t1 = glfw.get_time()
+        y1, z1 = glfw.get_cursor_pos(window)
 
-        # Generaremos diversas cámaras.
-        view = tr2.lookAt(
-            np.array([avion.pos_x - 0.5, cam_y, 0.2]), # eye
-            np.array([avion.pos_x + 0.5, avion.pos_y, 0.2]), # at
-            np.array([0,0,1])  # up
+        dt = t1 - t0
+        t0 = t1
+
+        dz = z1 - z0
+        z0 = z1
+
+        dy = y1 - y0
+        y0 = y1
+
+        # update angles
+        phi, theta = controlador.update_angle(dy, dz, dt)
+
+        # Setting up the view transform
+
+        # Where do we look at?
+        # A good way to understand this is that we would like
+        # to see in fron of us in each possible angle.
+        # This is what we do using spherical coordinates
+        
+        # REMAINDER:
+        #  x = cos(phi) * sin(theta)
+        #  y = sin(phi) * sin(theta)
+        #  z = cos(theta)
+        at = np.array([
+                np.cos(phi) * np.sin(theta),    # x
+                np.sin(phi) * np.sin(theta),    # y
+                np.cos(theta)                   # z
+            ])
+
+        phi_side = phi + np.pi * 0.5 # Simple correction
+
+        # Side vector, this helps us define 
+        # our sideway movement
+        new_side = np.array([
+                np.cos(phi_side) * np.sin(theta),
+                np.sin(phi_side) * np.sin(theta),
+                0
+            ])
+
+        # We have to redefine our at and forward vectors
+        # Now considering our character's position.
+        new_at = at + viewPos
+        forward = new_at - viewPos
+
+        # Move character according to the given parameters
+       # _character.move(window, viewPos, forward, new_side, dt)
+
+        # Setting camera look.
+        view = tr.lookAt(
+            viewPos,            # Eye
+            at + viewPos,       # At
+            up                  # Up
         )
+
+        
 
         # Dibujamos
         axis.draw(pipeline, projection, view)
