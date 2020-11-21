@@ -17,20 +17,21 @@ class Controller():
         self.old_pos = 0, 0
         self.theta = np.pi * 0.5
         self.phi = 0.
-        self.mouse_sensitivity = 1.
+        self.w = False
+        self.s = False
         
     def set_model(self, m):
         self.model = m
         
 
-    def update_angle(self, dx, dz, dt):
+    def update_angle(self, dy, dz, dt):
         # multiplo_inicial = self.theta // np.pi
 
         #self.phi -= dx * dt * self.mouse_sensitivity
-        self.phi = 0
+        self.phi = dy 
         theta_0 = self.theta
 
-        dtheta = dz * dt * self.mouse_sensitivity
+        dtheta = -dz 
         self.theta += dtheta
 
         if self.theta < 0:
@@ -79,30 +80,34 @@ class Controller():
 
             elif (key == glfw.KEY_RIGHT):
                 if self.model.en_aire:
-                    print("Girando Der.")
-                    self.model.inclinacion_der = True
-                    self.model.moverAvion = True
-                    if self.model.angulo_inclinacion >= 0:
-                        self.model.move_right = True
+                    if self.model.pos_y > -1:
+                        print("Girando Der.")
+                        self.model.inclinacion_der = True
+                        self.model.moverAvion = True
+                        if self.model.angulo_inclinacion >= 0:
+                            self.model.move_right = True
                 else:
                     print("No se puede maniobrar el avión en tierra")
 
             elif (key == glfw.KEY_LEFT):
                 if self.model.en_aire:
-                    print("Girando Izq.")
-                    self.model.inclinacion_izq = True
-                    self.moverAvion = True
-                    if self.model.angulo_inclinacion <= 0:
-                        self.model.move_left = True
+                    if self.model.pos_y < 1:
+                        print("Girando Izq.")
+                        self.model.inclinacion_izq = True
+                        self.moverAvion = True
+                        if self.model.angulo_inclinacion <= 0:
+                            self.model.move_left = True
                 else:
                     print("No se puede maniobrar el avión en tierra")
                     
             elif (key == glfw.KEY_W):
+                self.w = True
                 self.model.acelerar = True
                 if self.model.en_aire:
                     self.model.moverAvion = True
                 
             elif (key == glfw.KEY_S):
+                self.s = True
                 self.model.frenar = True
                 if self.model.en_aire:
                     self.model.moverAvion = True
@@ -161,35 +166,28 @@ class Controller():
                 print('Unknown key')
         # Si se suelta la tecla el avión vuelve a su rotación inicial.
         elif(action == glfw.RELEASE):
-            self.model.pos_inicial() 
+            self.model.pos_inicial()
+            self.w = False
+            self.s = False
                 
         # Cualquier otra tecla no la reconoce    
         else:
             print('Unknown key')
 
-        def move(self, window, viewPos, forward, new_side, dt):
+    def move(self, window, viewPos, forward, new_side, dt):
+        if self.model.move_right:
+            viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
 
-            if (glfw.get_key(window, glfw.KEY_A) == glfw.PRESS):
-                self.position[0] -= 2 * dt
-                viewPos += new_side * dt * 10
+        elif self.model.move_left:
+                viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
 
-            elif (glfw.get_key(window, glfw.KEY_D) == glfw.PRESS):
-                self.position[0] += 2* dt
-                viewPos -= new_side * dt * 10
+        elif self.w:
+            viewPos += forward * 0.001
 
-            elif (glfw.get_key(window, glfw.KEY_W) == glfw.PRESS):
-                self.position[1] += 2* dt
-                viewPos += forward * dt * 10
+        elif self.s:
+            viewPos -= forward * 0.001
 
-            elif (glfw.get_key(window, glfw.KEY_S) == glfw.PRESS):
-                self.position[1] -= 2* dt
-                viewPos -= forward * dt * 10
+        else:
+            pass
 
-            elif (glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS):
-                self.position[2] += 2* dt
-                viewPos[2] += 2*dt 
-
-            else:
-                pass
-
-            return self.position
+        return self.position

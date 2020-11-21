@@ -94,7 +94,8 @@ if __name__ == '__main__':
     controlador.set_model(avion)
 
     # Creamos la camara y la proyección
-    projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)
+    #projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)
+    projection = tr.perspective(60, float(width)/float(height), 0.1, 100)
 
     # Initializing first variables 
     t0 = glfw.get_time()
@@ -106,8 +107,8 @@ if __name__ == '__main__':
     up = np.array((0., 0., 1.))
     # Donde estará la cámara:
     viewPos = np.zeros(3)
-    viewPos[0] = avion.pos_x - 0.3
-    viewPos[2] = 0.5
+    viewPos[0] = avion.pos_x - 0.8
+    viewPos[2] = 0.3
 
     while not glfw.window_should_close(window):
 
@@ -119,7 +120,8 @@ if __name__ == '__main__':
 
         # Getting the time difference from the previous iteration
         t1 = glfw.get_time()
-        y1, z1 = glfw.get_cursor_pos(window)
+        y1 = avion.pos_y
+        z1 = avion.pos_z
 
         dt = t1 - t0
         t0 = t1
@@ -155,8 +157,8 @@ if __name__ == '__main__':
         # Side vector, this helps us define 
         # our sideway movement
         new_side = np.array([
-                np.cos(phi_side) * np.sin(theta),
-                np.sin(phi_side) * np.sin(theta),
+                0,
+                 avion.pos_y,
                 0
             ])
 
@@ -164,10 +166,10 @@ if __name__ == '__main__':
         # Now considering our character's position.
         new_at = at + viewPos
         forward = new_at - viewPos
-
+        print(forward)
         # Move character according to the given parameters
-       # _character.move(window, viewPos, forward, new_side, dt)
-
+        controlador.move(window, viewPos, forward, new_side, dt)
+        
         # Setting camera look.
         view = tr.lookAt(
             viewPos,            # Eye
