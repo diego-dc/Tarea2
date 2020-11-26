@@ -181,13 +181,11 @@ class Controller():
         elif self.model.move_left:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
 
-        elif self.w:
+        elif self.w and self.model.acelerar:
             viewPos += forward * 0.001
 
-        elif self.s:
+        elif self.s and self.model.frenar:
             viewPos -= forward * 0.001
 
         else:
             pass
-
-        return self.position

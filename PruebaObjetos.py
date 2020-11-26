@@ -37,7 +37,8 @@ def simulador_en_mov():
      avion.prender_apagar_motor = True
      avion.en_aire = True
      avion.draw(pipeline, projection, view)
-     montana.draw(pipeline, projection, view)
+     #montana.draw(pipeline, projection, view)
+     holes.draw(pipeline, projection, view)
      #panel.draw(pipeline)
      #indicadores.draw(pipeline)
      #perillas.draw(pipeline)
@@ -89,6 +90,7 @@ if __name__ == '__main__':
     axis = Axis()
     avion = plane()
     montana = mountain()
+    holes = holes()
 
     # Le entregamos el modelo que trabajara el controlador
     controlador.set_model(avion)
@@ -166,7 +168,7 @@ if __name__ == '__main__':
         # Now considering our character's position.
         new_at = at + viewPos
         forward = new_at - viewPos
-        print(forward)
+
         # Move character according to the given parameters
         controlador.move(window, viewPos, forward, new_side, dt)
         

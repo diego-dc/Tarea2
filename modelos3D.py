@@ -542,7 +542,50 @@ class plane(object):
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
         
-        
+class holes(object):
+    def __init__(self):
+        gpuCuboBlanco = es.toGPUShape(bs.createColorCube(1,1,1))
+
+        prisma = sg.SceneGraphNode("prisma")
+        prisma.transform = tr.scale(0.1, 0.1, 0.6)
+        prisma.childs += [gpuCuboBlanco]
+
+        prisma_rot = sg.SceneGraphNode("prisma_rot")
+        prisma_rot.transform = tr.rotationX(np.radians(90))
+        prisma_rot.childs += [prisma]
+
+        superior = sg.SceneGraphNode("superior")
+        superior.transform = tr.translate(0, 0, 0.3)
+        superior.childs += [prisma_rot]
+
+        inferior = sg.SceneGraphNode("inferior")
+        inferior.transform = tr.translate(0, 0, -0.3)
+        inferior.childs += [prisma_rot]
+
+        lado_izq = sg.SceneGraphNode("lado_izq")
+        lado_izq.transform = tr.translate(0, 0.3, 0)
+        lado_izq.childs += [prisma]
+
+        lado_der = sg.SceneGraphNode("lado_der")
+        lado_der.transform = tr.translate(0, -0.3, 0)
+        lado_der.childs += [prisma]
+
+        hole = sg.SceneGraphNode("hole")
+        hole.transform = tr.translate(0, 0, 0.2)
+        hole.childs += [superior, inferior, lado_izq, lado_der]
+
+        hole_complete = sg.SceneGraphNode("hole_complete")
+        hole.transform = tr.scale(0.4, 0.4, 0.4)
+        hole_complete.childs += [hole]
+
+        self.model = hole_complete
+
+
+    def draw(self, pipeline, projection, view):
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        sg.drawSceneGraphNode(self.model, pipeline)
+
         
 class Axis(object):
 
@@ -772,7 +815,6 @@ class mountain(object):
             self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
         
     def draw(self, pipeline, projection, view):
-        self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
