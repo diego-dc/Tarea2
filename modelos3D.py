@@ -217,7 +217,7 @@ class plane(object):
         inclinacion_avion.childs += [cabeceo_nodo]
         
         scaledPlane = sg.SceneGraphNode("Avion")
-        scaledPlane.transform = tr.uniformScale(0.1)
+        scaledPlane.transform = tr.uniformScale(0.05)
         scaledPlane.childs += [inclinacion_avion]
         
         
@@ -541,7 +541,11 @@ class plane(object):
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
-        
+
+
+#importamos ramdom para que aparezcan de forma aleatoria las nubes
+import random 
+
 class holes(object):
     def __init__(self):
         gpuCuboBlanco = es.toGPUShape(bs.createColorCube(1,1,1))
@@ -586,7 +590,7 @@ class holes(object):
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
 
-        
+
 class Axis(object):
 
     def __init__(self):
@@ -604,10 +608,8 @@ class Axis(object):
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'model'), 1, GL_TRUE, tr.identity())
         pipeline.drawShape(self.model, GL_LINES)
-        
-#importamos ramdom para que aparezcan de forma aleatoria las nubes
-import random 
-    
+
+
 class nubes(object):
     def __init__(self):
         gpuCuadradoBlanco = es.toGPUShape(bs.createColorQuad(1,1,1))
@@ -645,7 +647,7 @@ class nubes(object):
         elif self.descender:
             self.pos_y_random -= 0.002
             self.model.transform = tr.translate(self.pos_x, self.pos_y_random, 0)
-    
+
 # esto para que reconosca la lista
 from typing import List
 
@@ -784,7 +786,7 @@ class mountain(object):
         montana.childs += [montana_tras]
         
         montana_tam = sg.SceneGraphNode("montana_tam")
-        montana_tam.transform = tr.scale(1.1,random.choice([1.2, 0.9,0.8,0.7,0.6,0.5,0.4]),1)
+        montana_tam.transform = tr.scale(random.choice([1.2,0.8,0.7]), random.choice([1.2, 0.9,0.8,0.7]), random.choice([1.2, 0.9,0.8,0.7,0.6,0.5,0.4]))
         montana_tam.childs += [montana]
         
         #montana_pos = sg.SceneGraphNode("montana_pos")
@@ -794,10 +796,11 @@ class mountain(object):
         montana_final = sg.SceneGraphNode("montana_final")
         montana_final.childs += [montana_tam]
         
-        self.model = montana
+        self.model = montana_final
         #Le asignamos posición para poder modificarla
-        self.pos_x = 0
-        self.pos_y = 0
+        self.pos_x = 1.3
+        self.pos_y = random.choice([1,0.8,0.7,0.6, 0.4, 0.2, 0.1, -0.1, -0.3, -0.5, -0.7, -0.8, -1])
+        self.pos_z = -0.2
         self.elevar = False
         self.descender = False
         
@@ -808,13 +811,14 @@ class mountain(object):
         
     def update_y(self):
         if self.elevar and self.pos_y <= -0.2:
-            self.pos_y += 0.002
+            self.pos_z += 0.002
             self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
         elif self.descender and self.pos_y >= -0.4:
-            self.pos_y -= 0.002
+            self.pos_z -= 0.002
             self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
         
     def draw(self, pipeline, projection, view):
+        self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
@@ -831,16 +835,16 @@ class createMontanas(object):
         montaña = mountain()
         if self.en_aire == True:
             if (random.random() < 0.005):
-                montaña.pos_y = -0.4
+                montaña.pos_z = -0.4
                 self.creador_montanas.append(montaña)
         elif self.en_aire == False:
             if (random.random() < 0.005):
-                montaña.pos_y = -0.2
+                montaña.pos_z = -0.2
                 self.creador_montanas.append(montaña)
     
-    def draw(self, pipeline):
+    def draw(self, pipeline, projection, view):
         for j in self.creador_montanas:
-            j.draw(pipeline)
+            j.draw(pipeline, projection, view)
             
     def clean(self):
         x = 0
@@ -869,22 +873,21 @@ class createMontanas(object):
             j.update_x(dt) 
             j.update_y()
 
-    def DrawMoving_x(self, pipeline, dt):
+    def DrawMoving_x(self, pipeline, projection, view, dt):
         self.pos_inicial()
         self.update(dt)
-        self.draw(pipeline)
+        self.draw(pipeline, projection, view)
         self.clean()
- 
-        
-    def DrawMovingUp_x_y(self, pipeline, dt):
+
+    def DrawMovingUp_x_y(self, pipeline, projection, view, dt):
         self.update_elevar()
         self.update(dt)
-        self.draw(pipeline)
-        
-    def DrawMovingDown_x_y(self, pipeline, dt):
+        self.draw(pipeline, projection, view)
+
+    def DrawMovingDown_x_y(self, pipeline, projection, view, dt):
         self.update_descender()
         self.update(dt)
-        self.draw(pipeline)
+        self.draw(pipeline, projection, view)
  
     
 class panel_de_vuelo(object):

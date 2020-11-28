@@ -25,13 +25,13 @@ def simulador_en_mov():
      #perillas.perillas_accion(avion, pipeline)
      #indicadores.indicadores_accion(avion, pipeline)
      #nubes.crear_nubes() #crea nubes aleatoriamente
-     #montanas.crear_montanas()
+     montanas.crear_montanas()
      
      
      
      
      #cielo.draw(pipeline)
-     #montanas.DrawMoving_x(pipeline, dt)
+     montanas.DrawMoving_x(pipeline, projection, view, dt)
      #pastito.draw(pipeline)
      #nubes.DrawMoving_x(pipeline, dt)
      avion.prender_apagar_motor = True
@@ -89,7 +89,7 @@ if __name__ == '__main__':
     # Creamos los objetos
     axis = Axis()
     avion = plane()
-    montana = mountain()
+    montanas = createMontanas()
     holes = holes()
 
     # Le entregamos el modelo que trabajara el controlador
@@ -120,12 +120,18 @@ if __name__ == '__main__':
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+        # Calculamos el dt
+        v = avion.velocidad
+        ti = glfw.get_time()
+        dt = (ti - t0) * (v * 0.01)
+        t0 = ti
+
         # Getting the time difference from the previous iteration
         t1 = glfw.get_time()
         y1 = avion.pos_y
         z1 = avion.pos_z
 
-        dt = t1 - t0
+        dt2 = t1 - t0
         t0 = t1
 
         dz = z1 - z0
