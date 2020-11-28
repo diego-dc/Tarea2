@@ -547,6 +547,7 @@ class plane(object):
 import random 
 
 class holes(object):
+
     def __init__(self):
         gpuCuboBlanco = es.toGPUShape(bs.createColorCube(1,1,1))
 
@@ -575,21 +576,57 @@ class holes(object):
         lado_der.childs += [prisma]
 
         hole = sg.SceneGraphNode("hole")
-        hole.transform = tr.translate(0, 0, 0.2)
+        hole.transform = tr.scale(0.4, 0.4, 0.4)
         hole.childs += [superior, inferior, lado_izq, lado_der]
 
         hole_complete = sg.SceneGraphNode("hole_complete")
-        hole.transform = tr.scale(0.4, 0.4, 0.4)
         hole_complete.childs += [hole]
 
         self.model = hole_complete
+        self.pos_x = 1.3
+        self.pos_y = random.choice([0.9, 0.8, 0.7, 0.6, 0.3, 0.1, 0, -0.2, -0.3, -0.5, -0.7, -0.8, 0.9])
+        self.pos_z = random.choice([1,0.8,0.7, 0.6, 0.5, 0.3,0.2])
 
+
+
+    def update_x(self, dt):
+        self.pos_x -= dt
 
     def draw(self, pipeline, projection, view):
+        self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
 
+
+class create_holes(object):
+
+    def __init__(self):
+        self.creador_holes = []
+    
+    def crear_holes(self, pipeline, projection, view, dt):
+        hole = holes()
+        if (random.random() < 0.0004):
+            self.creador_holes.append(hole)
+        self.draw(pipeline, projection, view, dt)
+        self.clean()
+
+    def draw(self, pipeline, projection, view, dt):
+        self.update(dt)
+        for j in self.creador_holes:
+            j.draw(pipeline, projection, view)
+
+    def clean(self):
+        x = 0
+        for j in self.creador_holes:
+            if j.pos_x < -1.3 :
+                self.creador_holes.pop(x)
+                x += 1
+            else:
+                x += 1
+    def update(self, dt):
+        for j in self.creador_holes:
+            j.update_x(dt)
 
 class Axis(object):
 
@@ -726,7 +763,7 @@ class mountain(object):
         gpuTrianguloCafe = es.toGPUShape(bs.createColorPyramid(0.7,0.4,0))
         #gpuTrianguloBlanco = es.toGPUShape(bs.createColorTriangle(1,1,1))
         
-        # El fondo que será café, lo ajustamos y trasladamos
+        # Creamos la montaña en 3D, será una piramide café
         montana_fondo = sg.SceneGraphNode("montana_fondo")
         montana_fondo.transform = tr.uniformScale(0.8)
         montana_fondo.childs += [gpuTrianguloCafe]
@@ -735,63 +772,12 @@ class mountain(object):
         montana_tras.transform = tr.translate(0,0,0)
         montana_tras.childs += [montana_fondo]
         
-        #la nieve: TAMAÑO
-       # nieve1 = sg.SceneGraphNode("nieve1")
-       # nieve1.transform = tr.uniformScale(0.4)
-       # nieve1.childs += [gpuTrianguloBlanco]
-        
-       # nieve2 = sg.SceneGraphNode("nieve2")
-       # nieve2.transform = tr.uniformScale(0.2)
-       # nieve2.childs += [gpuTrianguloBlanco]
-        
-       # nieve3 = sg.SceneGraphNode("nieve3")
-       # nieve3.transform = tr.uniformScale(0.15)
-      #  nieve3.childs += [gpuTrianguloBlanco]
-        
-       # nieve4 = sg.SceneGraphNode("nieve4")
-       # nieve4.transform = tr.uniformScale(0.15)
-       # nieve4.childs += [gpuTrianguloBlanco]
-        
-        # la nieve: ROTACION
-      #  nieve2_rot = sg.SceneGraphNode("nieve2_rot")
-       # nieve2_rot.transform = tr.rotationZ(np.radians(180))
-       # nieve2_rot.childs += [nieve2]
-        
-       # nieve3_rot = sg.SceneGraphNode("nieve3_rot")
-      #  nieve3_rot.transform = tr.rotationZ(np.radians(180))
-       # nieve3_rot.childs += [nieve3]
-        
-       # nieve4_rot = sg.SceneGraphNode("nieve4_rot")
-       # nieve4_rot.transform = tr.rotationZ(np.radians(180))
-       # nieve4_rot.childs += [nieve4]
-        
-        # la nieve: TRASLACION
-      #  nieve1_tras = sg.SceneGraphNode("nieve1_tras")
-      #  nieve1_tras.transform = tr.translate(0, 0.4, 0)
-      #  nieve1_tras.childs += [nieve1]
-        
-       # nieve2_tras = sg.SceneGraphNode("nieve2_tras")
-      #  nieve2_tras.transform = tr.translate(0, 0.1, 0)
-      #  nieve2_tras.childs += [nieve2_rot]
-        
-      #  nieve3_tras = sg.SceneGraphNode("nieve3_tras")
-       # nieve3_tras.transform = tr.translate(0.125, 0.125, 0)
-      #  nieve3_tras.childs += [nieve3_rot]
-        
-       # nieve4_tras = sg.SceneGraphNode("nieve4_tras")
-       # nieve4_tras.transform = tr.translate(-0.125, 0.125, 0)
-       # nieve4_tras.childs += [nieve4_rot]
-        
         montana = sg.SceneGraphNode("montana")
         montana.childs += [montana_tras]
         
         montana_tam = sg.SceneGraphNode("montana_tam")
-        montana_tam.transform = tr.scale(random.choice([1.2,0.8,0.7]), random.choice([1.2, 0.9,0.8,0.7]), random.choice([1.2, 0.9,0.8,0.7,0.6,0.5,0.4]))
+        montana_tam.transform = tr.scale(random.choice([1.2,0.8,0.7]), random.choice([1.2, 0.9,0.8,0.7]), random.choice([1, 0.9,0.8,0.7,0.6,0.5,0.4]))
         montana_tam.childs += [montana]
-        
-        #montana_pos = sg.SceneGraphNode("montana_pos")
-        #montana_pos.transform = tr.translate(0,-0.2,0)
-        #montana_pos.childs += [montana_pos]
         
         montana_final = sg.SceneGraphNode("montana_final")
         montana_final.childs += [montana_tam]
@@ -833,14 +819,9 @@ class createMontanas(object):
     
     def crear_montanas(self):
         montaña = mountain()
-        if self.en_aire == True:
-            if (random.random() < 0.005):
-                montaña.pos_z = -0.4
-                self.creador_montanas.append(montaña)
-        elif self.en_aire == False:
-            if (random.random() < 0.005):
-                montaña.pos_z = -0.2
-                self.creador_montanas.append(montaña)
+        if (random.random() < 0.005):
+            montaña.pos_z = -0.2
+            self.creador_montanas.append(montaña)
     
     def draw(self, pipeline, projection, view):
         for j in self.creador_montanas:
