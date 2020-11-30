@@ -35,20 +35,26 @@ class cielo(object):
 class pasto(object):
     def __init__(self):
         
-        gpuPastoVerde = es.toGPUShape(bs.createSuelo(-0.2,0,0.8,0.1))
+        gpuPastoVerde = es.toGPUShape(bs.createColorCube(0,0.8,0.1))
         
         pastito = sg.SceneGraphNode("pastito")
+        pastito.transform = tr.scale(10, 10, 0.01)
         pastito.childs += [gpuPastoVerde]
+
+        pastito_c = sg.SceneGraphNode("pastito_c")
+        pastito_c.childs += [pastito]
         
         self.pos_y = 0
         self.elevar = False
         self.descender = False 
-        self.model = pastito
+        self.model = pastito_c
         
         
-    def draw(self, pipeline):
-        #self.model.transform = tr.translate(0, self.pos_y, 0)
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
+    def draw(self, pipeline, projection, view):
+        self.model.transform = tr.translate(0, 0, -0.98)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        sg.drawSceneGraphNode(self.model, pipeline)
         
     def update_up(self):
         if self.pos_y <= 0:

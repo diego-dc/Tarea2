@@ -32,7 +32,7 @@ def simulador_en_mov():
      
      #cielo.draw(pipeline)
      montanas.DrawMoving_x(pipeline, projection, view, dt)
-     #pastito.draw(pipeline)
+     pastito.draw(pipeline, projection, view)
      #nubes.DrawMoving_x(pipeline, dt)
      avion.prender_apagar_motor = True
      avion.en_aire = True
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     glUseProgram(pipeline.shaderProgram)
 
     # Setting up the clear screen color
-    glClearColor(0.15, 0.15, 0.15, 1.0)
+    glClearColor(0, 0.6, 1, 1.0)
 
     # As we work in 3D, we need to check which part is in front,
     # and which one is at the back
@@ -91,6 +91,7 @@ if __name__ == '__main__':
     avion = plane()
     montanas = createMontanas()
     holes = create_holes()
+    pastito = pasto()
 
     # Le entregamos el modelo que trabajara el controlador
     controlador.set_model(avion)
