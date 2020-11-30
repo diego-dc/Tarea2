@@ -64,9 +64,6 @@ if __name__ == '__main__':
     # Creamos el controlador
     controlador = Controller()
 
-
-    
-
     # Connecting the callback function 'on_key' to handle keyboard events
     glfw.set_key_callback(window, controlador.on_key)
 
@@ -78,7 +75,7 @@ if __name__ == '__main__':
     glUseProgram(pipeline.shaderProgram)
 
     # Setting up the clear screen color
-    glClearColor(0, 0.6, 1, 1.0)
+    glClearColor(0, 0.6, 1, 1.0) # Usamos un color cielo
 
     # As we work in 3D, we need to check which part is in front,
     # and which one is at the back
@@ -100,7 +97,7 @@ if __name__ == '__main__':
     #projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)
     projection = tr.perspective(60, float(width)/float(height), 0.1, 100)
 
-    # Initializing first variables 
+    # inicializamos algunas variables que usaremos 
     t0 = glfw.get_time()
     at = np.zeros(3)
     z0 = 0.
@@ -110,8 +107,8 @@ if __name__ == '__main__':
     up = np.array((0., 0., 1.))
     # Donde estará la cámara:
     viewPos = np.zeros(3)
-    viewPos[0] = avion.pos_x - 0.8
-    viewPos[2] = 0.3
+    viewPos[0] = avion.pos_x - 0.8 # Definimos un x inicial más atrás que el avión.
+    viewPos[2] = 0.3 #Definimos una vista desde la altura, un z más alto.
 
     while not glfw.window_should_close(window):
 
@@ -127,29 +124,18 @@ if __name__ == '__main__':
         dt = (ti - t0) * (v * 0.01)
         t0 = ti
 
-        # Getting the time difference from the previous iteration
-        t1 = glfw.get_time()
+        # Variables que nos servirán para el calculo de los ángulos de la cámara.
         y1 = avion.pos_y
         z1 = avion.pos_z
 
-        dt2 = t1 - t0
-        t0 = t1
-
-        dz = z1 - z0
+        dz = (z1 - z0) * 0.5
         z0 = z1
 
         dy = y1 - y0
         y0 = y1
 
-        # update angles
-        phi, theta = controlador.update_angle(dy, dz, dt)
-
-        # Setting up the view transform
-
-        # Where do we look at?
-        # A good way to understand this is that we would like
-        # to see in fron of us in each possible angle.
-        # This is what we do using spherical coordinates
+        # Actualizamos los angulos
+        phi, theta = controlador.update_angle(dy, dz)
         
         # REMAINDER:
         #  x = cos(phi) * sin(theta)
@@ -163,30 +149,20 @@ if __name__ == '__main__':
 
         phi_side = phi + np.pi * 0.5 # Simple correction
 
-        # Side vector, this helps us define 
-        # our sideway movement
-        new_side = np.array([
-                0,
-                 avion.pos_y,
-                0
-            ])
-
         # We have to redefine our at and forward vectors
         # Now considering our character's position.
         new_at = at + viewPos
         forward = new_at - viewPos
 
         # Move character according to the given parameters
-        controlador.move(window, viewPos, forward, new_side, dt)
+        controlador.move(window, viewPos, forward, dt)
         
-        # Setting camera look.
+        # Definimos la configuración de la cámara.
         view = tr.lookAt(
             viewPos,            # Eye
             at + viewPos,       # At
             up                  # Up
         )
-
-        
 
         # Dibujamos
         axis.draw(pipeline, projection, view)

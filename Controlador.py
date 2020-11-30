@@ -24,27 +24,31 @@ class Controller():
         self.model = m
         
 
-    def update_angle(self, dy, dz, dt):
-        # multiplo_inicial = self.theta // np.pi
+    def update_angle(self, dy, dz):
 
-        #self.phi -= dx * dt * self.mouse_sensitivity
+        #nuestro Phi será fijo, pues queremos mirar siempre hacia delante
         self.phi = dy 
-        theta_0 = self.theta
 
-        dtheta = -dz 
-        self.theta += dtheta
+        #Fijamos un theta inicial, que será como inicia la cámara
+        theta_0 = np.pi * 0.5
+
+        #Variamos el theta sólo en ciertos ángulos.
+        dtheta = -dz
+        if self.theta + dtheta > theta_0 and self.theta + dtheta < theta_0 + 0.45:
+            self.theta += dtheta
 
         if self.theta < 0:
             self.theta = 0.01
+        
+        #Esto por si queremos que la camara vuelva a la posición theta_0 una vez se estabiliza.
+        #elif self.model.cabeceo_angulo == 0 and theta_0 + 0.1 > self.theta == theta_0:
+        #    self.theta -= 0.001
 
         elif self.theta > np.pi:
             self.theta = 3.14159
 
         else:
             pass
-
-        # if (self.theta + dtheta) // np.pi == multiplo_inicial:
-        #     self.theta += dtheta
 
         return self.phi, self.theta
 
@@ -174,12 +178,35 @@ class Controller():
         else:
             print('Unknown key')
 
-    def move(self, window, viewPos, forward, new_side, dt):
+    #Función que moverá la cámara junto al movimiento del avión.
+    def move(self, window, viewPos, forward, dt):
         if self.model.move_right:
+            if self.model.move_up:
+                viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
+            elif self.model.move_down:
+                viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
             viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
 
         elif self.model.move_left:
+            if self.model.move_up:
+                viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
+            elif self.model.move_down:
+                viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
+            viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+
+        elif self.model.move_up:
+            if self.model.move_right:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+            elif self.model.move_left:
+                viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+            viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
+
+        elif self.model.move_down:
+            if self.model.move_right:
+                viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+            elif self.model.move_left:
+                viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+            viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
 
         elif self.w and self.model.acelerar:
             viewPos += forward * 0.001

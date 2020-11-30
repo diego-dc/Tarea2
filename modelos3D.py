@@ -421,7 +421,7 @@ class plane(object):
                 self.pos_y += -(0.001 * (self.angulo_inclinacion * 0.03))
             elif self.move_right and self.pos_y >= -1:
                 self.pos_y -= 0.001 * (self.angulo_inclinacion * 0.03)
-            self.pos_z -= 0.001 * (self.cabeceo_angulo * 0.03 )
+            self.pos_z -= 0.001 * (self.cabeceo_angulo * 0.025 )
             self.update(self.pos_x, self.pos_y, self.pos_z)
             #if self.pos_z <= -0.12 and self.en_aire:
                 #self.caida_libre = True
