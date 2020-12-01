@@ -108,7 +108,7 @@ if __name__ == '__main__':
     # Donde estará la cámara:
     viewPos = np.zeros(3)
     viewPos[0] = avion.pos_x - 0.8 # Definimos un x inicial más atrás que el avión.
-    viewPos[2] = 0.3 #Definimos una vista desde la altura, un z más alto.
+    viewPos[2] = -0.8 #Definimos una vista desde la altura, un z más alto.
 
     while not glfw.window_should_close(window):
 

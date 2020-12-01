@@ -38,7 +38,7 @@ class pasto(object):
         gpuPastoVerde = es.toGPUShape(bs.createColorCube(0,0.8,0.1))
         
         pastito = sg.SceneGraphNode("pastito")
-        pastito.transform = tr.scale(10, 10, 0.01)
+        pastito.transform = tr.scale(5, 10, 0.01)
         pastito.childs += [gpuPastoVerde]
 
         pastito_c = sg.SceneGraphNode("pastito_c")
@@ -245,7 +245,7 @@ class plane(object):
         
         self.pos_x = -0.5
         self.pos_y = 0
-        self.pos_z = 0
+        self.pos_z = -0.95
 
         self.moverAvion = False
         self.move_up = False
@@ -426,13 +426,13 @@ class plane(object):
             #if self.pos_z <= -0.12 and self.en_aire:
                 #self.caida_libre = True
         elif self.acelerar == True and self.prender_apagar_motor == True:
-            self.pos_x += 0.0008
+            self.pos_x += 0.00002
             self.velocidad += 0.1
             self.update(self.pos_x, self.pos_y, self.pos_z)
             #if self.velocidad > 145:
                 #self.caida_libre = True
         elif self.frenar == True and self.prender_apagar_motor == True:
-            self.pos_x -= 0.0008
+            self.pos_x -= 0.00002
             self.velocidad -= 0.1
             self.update(self.pos_x, self.pos_y, self.pos_z)
             #if self.velocidad < 30 and self.en_aire:
@@ -591,7 +591,7 @@ class holes(object):
         self.model = hole_complete
         self.pos_x = 1.3
         self.pos_y = random.choice([0.9, 0.8, 0.7, 0.6, 0.3, 0.1, 0, -0.2, -0.3, -0.5, -0.7, -0.8, 0.9])
-        self.pos_z = random.choice([1,0.8,0.7, 0.6, 0.5, 0.3,0.2])
+        self.pos_z = random.choice([1, 0.8, 0.7, 0.6, 0.5, 0.3,0.2, 0.1, 0 , -0.1])
 
 
 
@@ -782,7 +782,7 @@ class mountain(object):
         montana.childs += [montana_tras]
         
         montana_tam = sg.SceneGraphNode("montana_tam")
-        montana_tam.transform = tr.scale(random.choice([1.2,0.8,0.7]), random.choice([1.2, 0.9,0.8,0.7]), random.choice([1, 0.9,0.8,0.7,0.6,0.5,0.4]))
+        montana_tam.transform = tr.scale(random.choice([1.4,0.9,0.8]), random.choice([1.4, 1,0.9,0.8]), random.choice([1.3, 1,0.9,0.8,0.7,0.6,0.5]))
         montana_tam.childs += [montana]
         
         montana_final = sg.SceneGraphNode("montana_final")
@@ -792,7 +792,7 @@ class mountain(object):
         #Le asignamos posición para poder modificarla
         self.pos_x = 1.3
         self.pos_y = random.choice([1,0.8,0.7,0.6, 0.4, 0.2, 0.1, -0.1, -0.3, -0.5, -0.7, -0.8, -1])
-        self.pos_z = -0.2
+        self.pos_z = -0.95
         self.elevar = False
         self.descender = False
         
@@ -804,10 +804,10 @@ class mountain(object):
     def update_y(self):
         if self.elevar and self.pos_y <= -0.2:
             self.pos_z += 0.002
-            self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
+            self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
         elif self.descender and self.pos_y >= -0.4:
             self.pos_z -= 0.002
-            self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
+            self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
         
     def draw(self, pipeline, projection, view):
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
@@ -826,7 +826,7 @@ class createMontanas(object):
     def crear_montanas(self):
         montaña = mountain()
         if (random.random() < 0.005):
-            montaña.pos_z = -0.2
+            montaña.pos_z = -0.75
             self.creador_montanas.append(montaña)
     
     def draw(self, pipeline, projection, view):

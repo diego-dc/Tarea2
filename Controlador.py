@@ -209,10 +209,10 @@ class Controller():
             viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
 
         elif self.w and self.model.acelerar:
-            viewPos += forward * 0.001
+            viewPos += forward * 0.0001
 
         elif self.s and self.model.frenar:
-            viewPos -= forward * 0.001
+            viewPos -= forward * 0.0001
 
         else:
             pass
