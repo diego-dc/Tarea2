@@ -302,7 +302,6 @@ class plane(object):
             self.inclinacion_der = False
             
             if  0 <= np.radians(self.angulo_inclinacion) < 0.5 or -0.5 < np.radians(self.angulo_inclinacion) <= 0:
-                print("xd")
                 self.move_right = False
                 self.move_left = False
                 self.moverAvion = False
@@ -876,23 +875,40 @@ class createMontanas(object):
         self.update(dt)
         self.draw(pipeline, projection, view)
  
-    
+
+class createVelocimetro(object):
+    def __init__(self):
+        gpuWhiteCircle = bs.createColorCylinder(1, 1, 1, 0.25, 0.05)
+
+        self.model = gpuWhiteCircle
+
+
+    def draw_it(self, pipeline, view, projection):
+        self.model.draw(view, projection)
+
 class panel_de_vuelo(object):
     def __init__(self):
         gpuWhiteCircle = es.toGPUShape(bs.createColorCircle(30, 1, 1, 1, 1))
-        gpuCuadradoverde = es.toGPUShape(bs.createColorQuad(0,1,0))
-        gpuCuadradoAzul = es.toGPUShape(bs.createColorQuad(0,0,1))
-        gpuCuadradoAmarillo = es.toGPUShape(bs.createColorQuad(0.9,1,0))
-        gpuCuadradoRojo = es.toGPUShape(bs.createColorQuad(1,0,0))
-        gpuCuadradoBlanco = es.toGPUShape(bs.createColorQuad(1,1,1))
-        gpuMesaDeControl = es.toGPUShape(bs.createSuelo(-0.4,0.8,0.8,0.8))
-        gpuCuadradoGris = es.toGPUShape(bs.createColorQuad(0.6,0.6,0.7))
-        gpuCuadradoNegro = es.toGPUShape(bs.createColorQuad(0.2,0.2,0.2))
+        gpuCuadradoverde = es.toGPUShape(bs.createColorCube(0,1,0))
+        gpuCuadradoAzul = es.toGPUShape(bs.createColorCube(0,0,1))
+        gpuCuadradoAmarillo = es.toGPUShape(bs.createColorCube(0.9,1,0))
+        gpuCuadradoRojo = es.toGPUShape(bs.createColorCube(1,0,0))
+        gpuCuadradoBlanco = es.toGPUShape(bs.createColorCube(1,1,1))
+        gpuMesaDeControl = es.toGPUShape(bs.createColorCube(0.8, 0.8, 0.8))
+        gpuCuadradoGris = es.toGPUShape(bs.createColorCube(0.6,0.6,0.7))
+        gpuCuadradoNegro = es.toGPUShape(bs.createColorCube(0.2,0.2,0.2))
         
         # Creamos el fondo de lo que sera la mesa de control
         Mesa_control = sg.SceneGraphNode("Mesa_control")
         Mesa_control.childs += [gpuMesaDeControl]
         
+        Mesa_control_sc = sg.SceneGraphNode("Mesa_control_sc")
+        Mesa_control_sc.transform = tr.scale(1.3, 0.3, 0.005)
+        Mesa_control_sc.childs += [Mesa_control]
+
+        Mesa_control_tras = sg.SceneGraphNode("Mesa_control_tras")
+        Mesa_control_tras.transform = tr.translate(0, -0.7, 0)
+        Mesa_control_tras.childs += [Mesa_control_sc]
         
         # Este será el velocimetro.
         velocimetro_circ = sg.SceneGraphNode("velocimetro_circ")
@@ -900,37 +916,37 @@ class panel_de_vuelo(object):
         velocimetro_circ.childs += [gpuWhiteCircle]
         
         indicadores_azules = sg.SceneGraphNode("indicadores_azules")
-        indicadores_azules.transform = tr.scale(0.03, 0.2, 0)
+        indicadores_azules.transform = tr.scale(0.03, 0.2, 0.05)
         indicadores_azules.childs += [gpuCuadradoAzul]
         
         indicadores_verdes = sg.SceneGraphNode("indicadores_verdes")
-        indicadores_verdes.transform = tr.scale(0.03, 0.2, 0)
+        indicadores_verdes.transform = tr.scale(0.03, 0.2, 0.05)
         indicadores_verdes.childs += [gpuCuadradoverde]
         
         indicadores_amarillo = sg.SceneGraphNode("indicadores_amarillo")
-        indicadores_amarillo.transform = tr.scale(0.03,0.2,0)
+        indicadores_amarillo.transform = tr.scale(0.03,0.2,0.05)
         indicadores_amarillo.childs += [gpuCuadradoAmarillo]
         
         indicadores_rojos = sg.SceneGraphNode("indicadores_rojos")
-        indicadores_rojos.transform = tr.scale(0.03, 0.2, 0)
+        indicadores_rojos.transform = tr.scale(0.03, 0.2, 0.05)
         indicadores_rojos.childs += [gpuCuadradoRojo]
         
         
         
         indicadores_azul_tras = sg.SceneGraphNode("indicadores_azul_tras")
-        indicadores_azul_tras.transform = tr.translate(0, 0.65, 0)
+        indicadores_azul_tras.transform = tr.translate(0, 0.65, 0.05)
         indicadores_azul_tras.childs += [indicadores_azules]
         
         indicadores_verde_tras = sg.SceneGraphNode("indicadores_verde_tras")
-        indicadores_verde_tras.transform = tr.translate(0, 0.65, 0)
+        indicadores_verde_tras.transform = tr.translate(0, 0.65, 0.05)
         indicadores_verde_tras.childs += [indicadores_verdes]
         
         indicadores_amarillos_tras = sg.SceneGraphNode("indicadores_amarillos_tras")
-        indicadores_amarillos_tras.transform = tr.translate(0, 0.65, 0)
+        indicadores_amarillos_tras.transform = tr.translate(0, 0.65, 0.05)
         indicadores_amarillos_tras.childs += [indicadores_amarillo]
         
         indicadores_rojo_tras = sg.SceneGraphNode("indicadores_rojo_tras")
-        indicadores_rojo_tras.transform = tr.translate(0, 0.65, 0)
+        indicadores_rojo_tras.transform = tr.translate(0, 0.65, 0.05)
         indicadores_rojo_tras.childs += [indicadores_rojos]
         
         
@@ -1004,13 +1020,17 @@ class panel_de_vuelo(object):
         
         
         velocimetro_tam = sg.SceneGraphNode("velocimetro_tam")
-        velocimetro_tam.transform = tr.uniformScale(0.3)
+        velocimetro_tam.transform = tr.uniformScale(0.25)
         velocimetro_tam.childs += [ velocimetro_circ , I_azul1, I_azul2, I_azul3, I_azul4, I_azul5, I_verde1, I_verde2,
                                     I_verde3, I_amarillo1, I_amarillo2, I_amarillo3, I_amarillo4, I_rojo1, I_rojo2, I_rojo3, I_rojo4]
         
+        velocimetro_sc = sg.SceneGraphNode("velocimetro_sc")
+        velocimetro_sc.transform = tr.uniformScale(0.5)
+        velocimetro_sc.childs += [velocimetro_tam]
+
         velocimetro_tras = sg.SceneGraphNode("velocimetro_tras")
-        velocimetro_tras.transform = tr.translate(-0.7, -0.7, 0)
-        velocimetro_tras.childs += [velocimetro_tam]
+        velocimetro_tras.transform = tr.translate(-0.5, -0.7, 0.05)
+        velocimetro_tras.childs += [velocimetro_sc]
         
         
         # Este será el medidor de revoluciones del motor.
@@ -1019,11 +1039,11 @@ class panel_de_vuelo(object):
         velocimetro_circ.childs += [gpuWhiteCircle]
         
         indicadores_negros = sg.SceneGraphNode("indicadores_negros")
-        indicadores_negros.transform = tr.scale(0.03, 0.2, 0)
+        indicadores_negros.transform = tr.scale(0.03, 0.2, 0.05)
         indicadores_negros.childs += [gpuCuadradoNegro]
         
         indicadores_negro_tras = sg.SceneGraphNode("indicadores_negro_tras")
-        indicadores_negro_tras.transform = tr.translate(0, 0.65, 0)
+        indicadores_negro_tras.transform = tr.translate(0, 0.65, 0.05)
         indicadores_negro_tras.childs += [indicadores_negros]
         
         
@@ -1093,87 +1113,113 @@ class panel_de_vuelo(object):
         
         
         med_rps_motor_tam = sg.SceneGraphNode("med_rps_motor_tam")
-        med_rps_motor_tam.transform = tr.uniformScale(0.3)
+        med_rps_motor_tam.transform = tr.uniformScale(0.25)
         med_rps_motor_tam.childs += [ velocimetro_circ , I_n1, I_n2, I_n3, I_n4, I_n5, I_n6, I_n7,
                                     I_n8, I_n9, I_n10, I_n11, I_n12, I_n13, I_n14, I_n15, I_n16]
         
-        med_rps_motor_tras = sg.SceneGraphNode("med_rps_motor_tras")
-        med_rps_motor_tras.transform = tr.translate(0, -0.7, 0)
-        med_rps_motor_tras.childs += [med_rps_motor_tam]
+        med_rps_motor_sc = sg.SceneGraphNode("med_rps_motor_sc")
+        med_rps_motor_sc.transform = tr.uniformScale(0.5)
+        med_rps_motor_sc.childs += [med_rps_motor_tam]
         
+
+        med_rps_motor_tras = sg.SceneGraphNode("med_rps_motor_tras")
+        med_rps_motor_tras.transform = tr.translate(0, -0.7, 0.05)
+        med_rps_motor_tras.childs += [med_rps_motor_sc] #MODELO FINAL MEDIDOR RPS_MOTOR
+
+
         # El medidor de altura.
         med_altura_tam = sg.SceneGraphNode("med_altura_tam")
-        med_altura_tam.transform = tr.scale(0.15, 0.4, 0)
+        med_altura_tam.transform = tr.scale(0.15, 0.4, 0.05)
         med_altura_tam.childs += [gpuCuadradoGris]
         
         medidores = sg.SceneGraphNode("medidores")
-        medidores.transform = tr.scale(0.075, 0.01, 0)
+        medidores.transform = tr.scale(0.075, 0.01, 0.05)
         medidores.childs += [gpuCuadradoNegro]
         
         medidor1 = sg.SceneGraphNode("medidor1")
-        medidor1.transform = tr.translate(0, -0.15, 0)
+        medidor1.transform = tr.translate(0, -0.15, 0.05)
         medidor1.childs += [medidores]
         
         medidor2 = sg.SceneGraphNode("medidor2")
-        medidor2.transform = tr.translate(0, -0.075, 0)
+        medidor2.transform = tr.translate(0, -0.075, 0.05)
         medidor2.childs += [medidores]
         
         medidor3 = sg.SceneGraphNode("medidor3")
-        medidor3.transform = tr.translate(0, 0, 0)
+        medidor3.transform = tr.translate(0, 0, 0.05)
         medidor3.childs += [medidores]
         
         medidor4 = sg.SceneGraphNode("medidor4")
-        medidor4.transform = tr.translate(0, 0.075, 0)
+        medidor4.transform = tr.translate(0, 0.075, 0.05)
         medidor4.childs += [medidores]
         
         medidor5 = sg.SceneGraphNode("medidor5")
-        medidor5.transform = tr.translate(0, 0.15, 0)
+        medidor5.transform = tr.translate(0, 0.15, 0.05)
         medidor5.childs += [medidores]
         
         
-        med_altura= sg.SceneGraphNode("med_altura")
+        med_altura = sg.SceneGraphNode("med_altura")
+        med_altura.transform = tr.uniformScale(0.5)
         med_altura.childs += [med_altura_tam, medidor1, medidor2, medidor3, medidor4, medidor5]
         
         med_altura_tras = sg.SceneGraphNode("med_altura_tras")
-        med_altura_tras.transform = tr.translate(-0.35, -0.7, 0)
-        med_altura_tras.childs += [med_altura]
-        
-        
+        med_altura_tras.transform = tr.translate(-0.35, -0.7, 0.05)
+        med_altura_tras.childs += [med_altura] #MODELO FINAL MEDIDOR ALTURA
+
+
         # Por último realizamos el medidor de cabeceo.
         
         med_cabeceo_tam = sg.SceneGraphNode("med_cabeceo_tam")
-        med_cabeceo_tam.transform = tr.scale(0.45, 0.25, 0)
+        med_cabeceo_tam.transform = tr.scale(0.45, 0.25, 0.05)
         med_cabeceo_tam.childs += [gpuCuadradoGris]
         
         lineas_Negras = sg.SceneGraphNode("lineas_Negras")
-        lineas_Negras.transform = tr.scale(0.28, 0.0085, 0)
+        lineas_Negras.transform = tr.scale(0.28, 0.0085, 0.05)
         lineas_Negras.childs += [gpuCuadradoNegro]
         
         linea1 = sg.SceneGraphNode("linea1")
-        linea1.transform = tr.translate(0, -0.075, 0)
+        linea1.transform = tr.translate(0, -0.075, 0.05)
         linea1.childs += [lineas_Negras]
         
         linea2 = sg.SceneGraphNode("linea2")
-        linea2.transform = tr.translate(0, 0.075, 0)
+        linea2.transform = tr.translate(0, 0.075, 0.05)
         linea2.childs += [lineas_Negras]
         
         linea3 = sg.SceneGraphNode("linea3")
-        linea3.transform = tr.translate(0, 0, 0)
+        linea3.transform = tr.translate(0, 0, 0.05)
         linea3.childs += [lineas_Negras]
         
         med_cabeceo = sg.SceneGraphNode("med_cabeceo")
-        med_cabeceo.transform = tr.translate(0.5, -0.7, 0)
+        med_cabeceo.transform = tr.uniformScale(0.5)
         med_cabeceo.childs += [med_cabeceo_tam, linea1, linea2, linea3]
+
+        med_cabeceo_sc = sg.SceneGraphNode("med_cabeceo_sc")
+        med_cabeceo_sc.transform = tr.translate(0.5, -0.7, 0.05)
+        med_cabeceo_sc.childs += [med_cabeceo] #MODELO FINAL MEDIDOR DE CABECEO
         
         
         # Juntamos las piezas del panel de control
         panel_de_control = sg.SceneGraphNode("panel_de_control")
-        panel_de_control.childs += [Mesa_control, velocimetro_tras, med_altura_tras, med_rps_motor_tras, med_cabeceo]
+        panel_de_control.transform = tr.uniformScale(0.25)
+        panel_de_control.childs += [Mesa_control_tras, velocimetro_tras, med_altura_tras, med_rps_motor_tras, med_cabeceo_sc]
         
-        self.model = panel_de_control
+        panel_de_control_rot = sg.SceneGraphNode("panel_de_control_rot")
+        panel_de_control_rot.transform = tr.rotationY(np.radians(270))
+        panel_de_control_rot.childs += [panel_de_control]
+
+        panel_de_control_rot2 = sg.SceneGraphNode("panel_de_control_rot2")
+        panel_de_control_rot2.transform = tr.rotationX(np.radians(90))
+        panel_de_control_rot2.childs += [panel_de_control_rot]
+
+        PanelDeControl = sg.SceneGraphNode("PanelDeControl")
+        PanelDeControl.transform = tr.translate(-1, 0, 0)
+        PanelDeControl.childs += [panel_de_control_rot2]
+
+        self.model = PanelDeControl
     
-    def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
+    def draw(self, pipeline, projection, view):
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        sg.drawSceneGraphNode(self.model, pipeline)
 
 
 class perilla_velocimetro(object):
