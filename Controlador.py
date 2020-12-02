@@ -13,6 +13,11 @@ class Controller():
     
     def __init__(self):
         self.model = None
+        self.panel = None
+        self.perillas = None
+        self.botones = None
+        self.indicadores = None
+
         self.position = np.zeros(3)
         self.old_pos = 0, 0
         self.theta = np.pi * 0.5
@@ -22,7 +27,12 @@ class Controller():
         
     def set_model(self, m):
         self.model = m
-        
+    
+    def set_adjuntos(self, panel, perillas, botones, medidores):
+        self.panel = panel
+        self.perillas = perillas
+        self.botones = botones 
+        self.indicadores = indicadores
 
     def update_angle(self, dy, dz):
 
@@ -34,8 +44,11 @@ class Controller():
 
         #Variamos el theta sólo en ciertos ángulos.
         dtheta = -dz
-        if self.theta + dtheta > theta_0 and self.theta + dtheta < theta_0 + 0.45:
+        if self.theta + dtheta > theta_0 and self.theta + dtheta < theta_0 + 0.2:
             self.theta += dtheta
+            self.panel.theta += dtheta
+            self.panel.Rotacion.transform = tr.rotationY(self.panel.theta)
+            
 
         if self.theta < 0:
             self.theta = 0.01
@@ -138,19 +151,8 @@ class Controller():
                     print("Apagando Panel")
                 self.model.prender_apagar_panel = not self.model.prender_apagar_panel
 
-            elif (key == glfw.KEY_C):
-                if self.model.camara1:
-                    print("cambiando camara")
-                    self.model.camara1 = False
-                    self.model.camara2 = True
-                elif self.model.camara2:
-                    print("cambiando camara")
-                    self.model.camara2 = False
-                    self.model.camara3 = True
-                elif self.model.camara3:
-                    print("cambiando camara")
-                    self.model.camara3 = False
-                    self.model.camara1 = True
+            elif (key == glfw.KEY_P):
+                self.panel.mostrar_panel = not self.panel.mostrar_panel
                 
                 
             
@@ -183,36 +185,52 @@ class Controller():
         if self.model.move_right:
             if self.model.move_up:
                 viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
+                self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
+                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2], viewPos[2], viewPos[2] #REPETIR ESTO A TODOS
             elif self.model.move_down:
                 viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
+                self.panel.pos_z -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
             viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+            self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
 
         elif self.model.move_left:
             if self.model.move_up:
                 viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
+                self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
             elif self.model.move_down:
                 viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
+                self.panel.pos_z -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
             viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+            self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
 
         elif self.model.move_up:
             if self.model.move_right:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+                self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             elif self.model.move_left:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+                self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
+            self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
 
         elif self.model.move_down:
             if self.model.move_right:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+                self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             elif self.model.move_left:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+                self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
+            self.panel.pos_z -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
 
         elif self.w and self.model.acelerar:
             viewPos += forward * 0.0001
+            self.panel.pos_x +=  0.0001
+
 
         elif self.s and self.model.frenar:
             viewPos -= forward * 0.0001
+            self.panel.pos_x -=  0.0001
 
         else:
             pass

@@ -148,9 +148,9 @@ if __name__ == "__main__":
     
     t0 = 0
     
-    # Le entregamos el modelo que trabajara el controlador
+    # Le entregamos el modelo que trabajara el controlador y el panel.
     controlador.set_model(avion)
-    
+    controlador.set_panel(panel)
     # Our shapes here are always fully painted
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 

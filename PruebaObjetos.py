@@ -25,11 +25,10 @@ def simulador_en_mov():
      #perillas.perillas_accion(avion, pipeline)
      #indicadores.indicadores_accion(avion, pipeline)
      #nubes.crear_nubes() #crea nubes aleatoriamente
-     montanas.crear_montanas()
-     
-     
-     
-     
+     if avion.velocidad != 0:
+        montanas.crear_montanas()
+        holes.crear_holes(pipeline, projection, view, dt)
+
      #cielo.draw(pipeline)
      montanas.DrawMoving_x(pipeline, projection, view, dt)
      pastito.draw(pipeline, projection, view)
@@ -37,9 +36,11 @@ def simulador_en_mov():
      avion.prender_apagar_motor = True
      avion.en_aire = True
      avion.draw(pipeline, projection, view)
-     panel.draw(pipeline,projection, view)
+     perillas.draw(pipeline, projection, view)
+     if panel.mostrar_panel:
+         panel.draw(pipeline,projection, view)
      #montana.draw(pipeline, projection, view)
-     holes.crear_holes(pipeline, projection, view, dt)
+     
      #panel.draw(pipeline)
      #indicadores.draw(pipeline)
      #perillas.draw(pipeline)
@@ -85,15 +86,24 @@ if __name__ == '__main__':
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
     # Creamos los objetos
+    
+    #escenario
     axis = Axis()
-    avion = plane()
     montanas = createMontanas()
     holes = create_holes()
     pastito = pasto()
+    
+
+    #Avion
+    avion = plane()
     panel = panel_de_vuelo()
+    perillas = perilla_velocimetro()
+    botones = botones()
+    indicadores = indicadores()
 
     # Le entregamos el modelo que trabajara el controlador
     controlador.set_model(avion)
+    controlador.set_adjuntos(panel, perillas, botones, indicadores)
 
     # Creamos la camara y la proyección
     #projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)

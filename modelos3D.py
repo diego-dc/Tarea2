@@ -894,11 +894,11 @@ class panel_de_vuelo(object):
         Mesa_control.childs += [gpuMesaDeControl]
         
         Mesa_control_sc = sg.SceneGraphNode("Mesa_control_sc")
-        Mesa_control_sc.transform = tr.scale(1.3, 0.3, 0.005)
+        Mesa_control_sc.transform = tr.scale(1.3, 0.6, 0.005)
         Mesa_control_sc.childs += [Mesa_control]
 
         Mesa_control_tras = sg.SceneGraphNode("Mesa_control_tras")
-        Mesa_control_tras.transform = tr.translate(0, -0.7, 0)
+        Mesa_control_tras.transform = tr.translate(0, -0.875, 0)
         Mesa_control_tras.childs += [Mesa_control_sc]
         
         # Este será el velocimetro.
@@ -1016,12 +1016,12 @@ class panel_de_vuelo(object):
                                     I_verde3, I_amarillo1, I_amarillo2, I_amarillo3, I_amarillo4, I_rojo1, I_rojo2, I_rojo3, I_rojo4]
         
         velocimetro_sc = sg.SceneGraphNode("velocimetro_sc")
-        velocimetro_sc.transform = tr.uniformScale(0.5)
+        velocimetro_sc.transform = tr.uniformScale(0.6)
         velocimetro_sc.childs += [velocimetro_tam]
 
         velocimetro_tras = sg.SceneGraphNode("velocimetro_tras")
-        velocimetro_tras.transform = tr.translate(-0.5, -0.7, 0.05)
-        velocimetro_tras.childs += [velocimetro_sc]
+        velocimetro_tras.transform = tr.translate(-0.45, -0.7, 0.05)
+        velocimetro_tras.childs += [velocimetro_sc] # Modelo final del velocimetro
         
         
         # Este será el medidor de revoluciones del motor.
@@ -1109,12 +1109,12 @@ class panel_de_vuelo(object):
                                     I_n8, I_n9, I_n10, I_n11, I_n12, I_n13, I_n14, I_n15, I_n16]
         
         med_rps_motor_sc = sg.SceneGraphNode("med_rps_motor_sc")
-        med_rps_motor_sc.transform = tr.uniformScale(0.5)
+        med_rps_motor_sc.transform = tr.uniformScale(0.6)
         med_rps_motor_sc.childs += [med_rps_motor_tam]
         
 
         med_rps_motor_tras = sg.SceneGraphNode("med_rps_motor_tras")
-        med_rps_motor_tras.transform = tr.translate(0, -0.7, 0.05)
+        med_rps_motor_tras.transform = tr.translate(-0.05, -0.7, 0.05)
         med_rps_motor_tras.childs += [med_rps_motor_sc] #MODELO FINAL MEDIDOR RPS_MOTOR
 
 
@@ -1153,7 +1153,7 @@ class panel_de_vuelo(object):
         med_altura.childs += [med_altura_tam, medidor1, medidor2, medidor3, medidor4, medidor5]
         
         med_altura_tras = sg.SceneGraphNode("med_altura_tras")
-        med_altura_tras.transform = tr.translate(-0.35, -0.7, 0.05)
+        med_altura_tras.transform = tr.translate(-0.25, -0.7, 0.05)
         med_altura_tras.childs += [med_altura] #MODELO FINAL MEDIDOR ALTURA
 
 
@@ -1184,13 +1184,13 @@ class panel_de_vuelo(object):
         med_cabeceo.childs += [med_cabeceo_tam, linea1, linea2, linea3]
 
         med_cabeceo_sc = sg.SceneGraphNode("med_cabeceo_sc")
-        med_cabeceo_sc.transform = tr.translate(0.5, -0.7, 0.05)
+        med_cabeceo_sc.transform = tr.translate(0.225, -0.7, 0.05)
         med_cabeceo_sc.childs += [med_cabeceo] #MODELO FINAL MEDIDOR DE CABECEO
         
         
         # Juntamos las piezas del panel de control
         panel_de_control = sg.SceneGraphNode("panel_de_control")
-        panel_de_control.transform = tr.uniformScale(0.25)
+        panel_de_control.transform = tr.uniformScale(0.105)
         panel_de_control.childs += [Mesa_control_tras, velocimetro_tras, med_altura_tras, med_rps_motor_tras, med_cabeceo_sc]
         
         panel_de_control_rot = sg.SceneGraphNode("panel_de_control_rot")
@@ -1201,13 +1201,28 @@ class panel_de_vuelo(object):
         panel_de_control_rot2.transform = tr.rotationX(np.radians(90))
         panel_de_control_rot2.childs += [panel_de_control_rot]
 
+        Rotacion = sg.SceneGraphNode("Rotacion")
+        Rotacion.childs += [panel_de_control_rot2]
+
         PanelDeControl = sg.SceneGraphNode("PanelDeControl")
-        PanelDeControl.transform = tr.translate(-1, 0, 0)
-        PanelDeControl.childs += [panel_de_control_rot2]
+        PanelDeControl.childs += [Rotacion]
+
+
 
         self.model = PanelDeControl
+        self.PanelDeControl = PanelDeControl
+        self.Rotacion = Rotacion
+
+        self.mostrar_panel = True
+
+        self.theta = 0
+
+        self.pos_x = -1.185
+        self.pos_y = 0
+        self.pos_z = -0.778
     
     def draw(self, pipeline, projection, view):
+        self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
@@ -1217,57 +1232,80 @@ class perilla_velocimetro(object):
     
     def __init__(self):
         
-        gpuTrianguloNegro = es.toGPUShape(bs.createColorTriangle(0.1,0.1,0.1))
+        gpuTrianguloNegro = es.toGPUShape(bs.createColorPyramid(0.1,0.1,0.1))
     
         perilla_forma = sg.SceneGraphNode("perilla_forma")
-        perilla_forma.transform = tr.scale(0.1, 1, 0)
+        perilla_forma.transform = tr.scale(0.1, 0.1, 1)
         perilla_forma.childs += [gpuTrianguloNegro]
 
         perilla_tam = sg.SceneGraphNode("perilla_tam")
-        perilla_tam.transform = tr.uniformScale(0.35)
+        perilla_tam.transform = tr.uniformScale(0.015)
         perilla_tam.childs += [perilla_forma]
 
+        perilla_rot_z = sg.SceneGraphNode("perilla_tam")
+        perilla_rot_z.transform = tr.rotationX(np.radians(90))
+        perilla_rot_z.childs += [perilla_tam] 
+
         perilla_rot = sg.SceneGraphNode("perilla_rot")
-        perilla_rot.childs += [perilla_tam]
+        perilla_rot.childs += [perilla_rot_z]
 
         perilla_tras = sg.SceneGraphNode("perilla_tras")
-        perilla_tras.transform = tr.translate(-0.7, -0.7, 0)
+        perilla_tras.transform = tr.translate(-1.195, 0.045, -0.85)
         perilla_tras.childs += [perilla_rot]
         
         perilla2_forma = sg.SceneGraphNode("perilla2_forma")
-        perilla2_forma.transform = tr.scale(0.1, 1, 0)
+        perilla2_forma.transform = tr.scale(0.1, 0.1, 1)
         perilla2_forma.childs += [gpuTrianguloNegro]
 
         perilla2_tam = sg.SceneGraphNode("perilla_tam")
-        perilla2_tam.transform = tr.uniformScale(0.35)
+        perilla2_tam.transform = tr.uniformScale(0.015)
         perilla2_tam.childs += [perilla2_forma]
 
+        perilla2_rot_z = sg.SceneGraphNode("perilla2_rot_z")
+        perilla2_rot_z.transform = tr.rotationX(np.radians(90))
+        perilla2_rot_z.childs += [perilla2_tam] 
+
         perilla2_rot = sg.SceneGraphNode("perilla_rot")
-        perilla2_rot.childs += [perilla2_tam]
+        perilla2_rot.childs += [perilla2_rot_z]
 
         perilla2_tras = sg.SceneGraphNode("perilla_tras")
-        perilla2_tras.transform = tr.translate(0, -0.7, 0)
+        perilla2_tras.transform = tr.translate(-1.195, 0.005, -0.85)
         perilla2_tras.childs += [perilla2_rot]
+
+        perillas_rotacion = sg.SceneGraphNode("perilla")
+        perillas_rotacion.childs += [perilla_tras, perilla2_tras]
     
         perilla = sg.SceneGraphNode("perilla")
-        perilla.childs += [perilla_tras, perilla2_tras]
+        perilla.childs += [perillas_rotacion]
+
+        
     
         self.model = perilla
+
+        self.Rotacion = perillas_rotacion
         self.perilla_rot = perilla_rot
         self.perilla2_rot = perilla2_rot
+
+        self.pos_x = 0
+        self.pos_y = 0
+        self.pos_z = 0
+
         self.rotation1 = 0
         self.rotation2 = 0
         self.angulo = 0
         self.apagar = True
         
-    def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
+    def draw(self, pipeline, projection, view):
+        self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        sg.drawSceneGraphNode(self.model, pipeline)
         
     
-    def perillas_accion(self, objeto, pipeline):
+    def perillas_accion(self, objeto, pipeline, projection, view):
         self.perilla1(objeto, pipeline)
         self.perilla2(objeto,pipeline)
-        self.draw(pipeline)
+        self.draw(pipeline, projection, view)
         
     def perilla1(self, objeto, pipeline):
         # La rotación 1 será dependiente de la velocidad del avión, pues sera nuestro velocimetro
