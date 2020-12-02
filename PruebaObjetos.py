@@ -39,7 +39,6 @@ def simulador_en_mov():
      avion.draw(pipeline, projection, view)
      panel.draw(pipeline,projection, view)
      #montana.draw(pipeline, projection, view)
-     #velocimetros.draw_it(pipeline, view, projection)
      holes.crear_holes(pipeline, projection, view, dt)
      #panel.draw(pipeline)
      #indicadores.draw(pipeline)
@@ -91,7 +90,6 @@ if __name__ == '__main__':
     montanas = createMontanas()
     holes = create_holes()
     pastito = pasto()
-    velocimetros = createVelocimetro()
     panel = panel_de_vuelo()
 
     # Le entregamos el modelo que trabajara el controlador

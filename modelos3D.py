@@ -876,15 +876,6 @@ class createMontanas(object):
         self.draw(pipeline, projection, view)
  
 
-class createVelocimetro(object):
-    def __init__(self):
-        gpuWhiteCircle = bs.createColorCylinder(1, 1, 1, 0.25, 0.05)
-
-        self.model = gpuWhiteCircle
-
-
-    def draw_it(self, pipeline, view, projection):
-        self.model.draw(view, projection)
 
 class panel_de_vuelo(object):
     def __init__(self):
