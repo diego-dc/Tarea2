@@ -28,7 +28,7 @@ class Controller():
     def set_model(self, m):
         self.model = m
     
-    def set_adjuntos(self, panel, perillas, botones, medidores):
+    def set_adjuntos(self, panel, perillas, botones, indicadores):
         self.panel = panel
         self.perillas = perillas
         self.botones = botones 
@@ -44,11 +44,13 @@ class Controller():
 
         #Variamos el theta sólo en ciertos ángulos.
         dtheta = -dz
-        if self.theta + dtheta > theta_0 and self.theta + dtheta < theta_0 + 0.2:
+        if self.theta + dtheta > theta_0 and self.theta + dtheta < theta_0 + 0.18:
             self.theta += dtheta
             self.panel.theta += dtheta
             self.panel.Rotacion.transform = tr.rotationY(self.panel.theta)
-            self.perillas.Rotacion.transform = tr.rotationY(self.panel.theta) #Hay que llevarlo a un x positivo y rotarlo en Y
+            self.perillas.Rotacion.transform = tr.rotationY(self.panel.theta)
+            self.indicadores.Rotacion.transform = tr.rotationY(self.panel.theta)
+            self.botones.Rotacion.transform = tr.rotationY(self.panel.theta)
 
         if self.theta < 0:
             self.theta = 0.01
@@ -133,23 +135,39 @@ class Controller():
                 if self.model.prender_apagar_todo == False:    
                     self.model.prender_apagar_todo = not self.model.prender_apagar_todo
                     print("Apagando todo")
+                    if self.model.prender_apagar_motor == False and self.model.prender_apagar_panel == False:
+                        print("Ya está todo apagado")
+                        self.model.prender_apagar_todo = False
+                elif self.model.prender_apagar_todo == True:    
+                    self.botones.mover_b1 = False
+                    self.model.prender_apagar_panel = False
+                    self.model.prender_apagar_motor = False
+                    self.model.prender_apagar_todo = False
+                
                 
                 
             elif (key == glfw.KEY_K):
-                
+                self.model.prender_apagar_motor = not self.model.prender_apagar_motor
+                if self.model.prender_apagar_motor:
+                    self.botones.mover_b2 = True
+                elif self.model.prender_apagar_motor == False:
+                    self.botones.mover_b2 = False
+                    self.perillas.apagar = True
                 if self.model.prender_apagar_motor == False:
                     print("Prendiendo Motor")
                 elif self.model.prender_apagar_motor == True:
                     print("Apagando Motor")
-                self.model.prender_apagar_motor = not self.model.prender_apagar_motor
+                
                     
             
             elif (key == glfw.KEY_L):
-                if self.model.prender_apagar_panel == False:
+                self.perillas.apagar = not self.perillas.apagar
+                self.indicadores.apagar = not self.indicadores.apagar
+                self.botones.mover_b3 = not self.botones.mover_b3
+                if self.perillas.apagar == False:
                     print("Prendiendo Panel")
-                elif self.model.prender_apagar_panel == True:
+                elif self.perillas.apagar == True:
                     print("Apagando Panel")
-                self.model.prender_apagar_panel = not self.model.prender_apagar_panel
 
             elif (key == glfw.KEY_P):
                 self.panel.mostrar_panel = not self.panel.mostrar_panel
@@ -186,11 +204,11 @@ class Controller():
             if self.model.move_up:
                 viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
                 self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
-                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
+                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2], viewPos[2] , viewPos[2] + 0.005 # Esto solo para evitar un pequeño bug al bajar la camara en los indicadores. (Se superponen figuras)
             elif self.model.move_down:
                 viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
                 self.panel.pos_z -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
-                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
+                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2], viewPos[2] , viewPos[2] + 0.005
             viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
@@ -199,11 +217,11 @@ class Controller():
             if self.model.move_up:
                 viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
                 self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
-                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
+                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2], viewPos[2] , viewPos[2] + 0.005
             elif self.model.move_down:
                 viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
                 self.panel.pos_z -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
-                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
+                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2], viewPos[2] , viewPos[2] + 0.005
             viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
@@ -219,7 +237,7 @@ class Controller():
                 self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
             viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
             self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
-            self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
+            self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2], viewPos[2] , viewPos[2] + 0.005
 
         elif self.model.move_down:
             if self.model.move_right:
@@ -232,16 +250,22 @@ class Controller():
                 self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
             viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
             self.panel.pos_z -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
-            self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
+            self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2], viewPos[2] , viewPos[2] + 0.005
 
         elif self.w and self.model.acelerar:
             viewPos += forward * 0.0001
             self.panel.pos_x +=  0.0001
+            self.perillas.pos_x += 0.0001
+            self.indicadores.pos_x += 0.0001
+            self.botones.pos_x += 0.0001
 
 
         elif self.s and self.model.frenar:
             viewPos -= forward * 0.0001
             self.panel.pos_x -=  0.0001
+            self.perillas.pos_x -= 0.0001
+            self.indicadores.pos_x -= 0.0001
+            self.botones.pos_x -= 0.0001
 
         else:
             pass

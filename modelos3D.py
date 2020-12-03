@@ -391,7 +391,6 @@ class plane(object):
         else:
             self.Cabeceo()
         
-        
     # La función que permitirá que el avión se mueva actualizando el movimiento del avión     
     def posAvion(self):
         # Acá lo que pasa en eventos especiales
@@ -464,8 +463,7 @@ class plane(object):
             self.update(self.pos_x, self.pos_y)
             if self.velocidad < 30 and self.en_aire:
                 self.caida_libre = True
-        
-        
+           
     def despegar_aterrizar(self, objeto):
         if self.despegar and self.prender_apagar_motor == True:
             if self.pos_y <= 0.2:
@@ -493,44 +491,7 @@ class plane(object):
             self.aterrizar = False
             self.despegar = False
             print("Prenda el motor para realizar esta acción")
-    
-    
-    def PresionarBotones(self, perillas, indicadores, botones):
-        self.P_A_todo(perillas, indicadores, botones)
-        self.P_A_motor(perillas, indicadores, botones)
-        self.P_A_panel(perillas, indicadores, botones)
-        
-        
-    def P_A_todo(self,perillas, indicadores, botones):
-        if self.prender_apagar_todo:
-            if self.prender_apagar_motor == False and self.prender_apagar_panel == False:
-                print("Ya está todo apagado")
-                self.prender_apagar_todo = False
-            elif self.prender_apagar_todo == True:    
-                botones.mover_b1 = False
-                self.prender_apagar_panel = False
-                self.prender_apagar_motor = False
-                self.prender_apagar_todo = False
-                
-                
-    def P_A_motor(self,perillas, indicadores, botones):
-        if self.prender_apagar_motor:
-            botones.mover_b2 = True
-        elif self.prender_apagar_motor == False:
-            botones.mover_b2 = False
-            perillas.apagar = True
-    
-    def P_A_panel(self,perillas, indicadores, botones):
-        if self.prender_apagar_panel:
-            perillas.apagar = False
-            indicadores.apagar = False
-            botones.mover_b3 = True
-        
-        elif self.prender_apagar_panel == False:
-            perillas.apagar = True
-            indicadores.apagar = True
-            botones.mover_b3 = False
-            
+
     def caidaLibre(self):
         self.move_up = False
         if self.pos_y > -0.175:
@@ -907,19 +868,19 @@ class panel_de_vuelo(object):
         velocimetro_circ.childs += [gpuWhiteCircle]
         
         indicadores_azules = sg.SceneGraphNode("indicadores_azules")
-        indicadores_azules.transform = tr.scale(0.03, 0.2, 0.05)
+        indicadores_azules.transform = tr.scale(0.03, 0.2, 0.04)
         indicadores_azules.childs += [gpuCuadradoAzul]
         
         indicadores_verdes = sg.SceneGraphNode("indicadores_verdes")
-        indicadores_verdes.transform = tr.scale(0.03, 0.2, 0.05)
+        indicadores_verdes.transform = tr.scale(0.03, 0.2, 0.04)
         indicadores_verdes.childs += [gpuCuadradoverde]
         
         indicadores_amarillo = sg.SceneGraphNode("indicadores_amarillo")
-        indicadores_amarillo.transform = tr.scale(0.03,0.2,0.05)
+        indicadores_amarillo.transform = tr.scale(0.03,0.2,0.04)
         indicadores_amarillo.childs += [gpuCuadradoAmarillo]
         
         indicadores_rojos = sg.SceneGraphNode("indicadores_rojos")
-        indicadores_rojos.transform = tr.scale(0.03, 0.2, 0.05)
+        indicadores_rojos.transform = tr.scale(0.03, 0.2, 0.04)
         indicadores_rojos.childs += [gpuCuadradoRojo]
         
         
@@ -1030,7 +991,7 @@ class panel_de_vuelo(object):
         velocimetro_circ.childs += [gpuWhiteCircle]
         
         indicadores_negros = sg.SceneGraphNode("indicadores_negros")
-        indicadores_negros.transform = tr.scale(0.03, 0.2, 0.05)
+        indicadores_negros.transform = tr.scale(0.03, 0.2, 0.04)
         indicadores_negros.childs += [gpuCuadradoNegro]
         
         indicadores_negro_tras = sg.SceneGraphNode("indicadores_negro_tras")
@@ -1124,7 +1085,7 @@ class panel_de_vuelo(object):
         med_altura_tam.childs += [gpuCuadradoGris]
         
         medidores = sg.SceneGraphNode("medidores")
-        medidores.transform = tr.scale(0.075, 0.01, 0.05)
+        medidores.transform = tr.scale(0.075, 0.01, 0.025)
         medidores.childs += [gpuCuadradoNegro]
         
         medidor1 = sg.SceneGraphNode("medidor1")
@@ -1164,7 +1125,7 @@ class panel_de_vuelo(object):
         med_cabeceo_tam.childs += [gpuCuadradoGris]
         
         lineas_Negras = sg.SceneGraphNode("lineas_Negras")
-        lineas_Negras.transform = tr.scale(0.28, 0.0085, 0.05)
+        lineas_Negras.transform = tr.scale(0.28, 0.0085, 0.025)
         lineas_Negras.childs += [gpuCuadradoNegro]
         
         linea1 = sg.SceneGraphNode("linea1")
@@ -1242,15 +1203,15 @@ class perilla_velocimetro(object):
         perilla_tam.transform = tr.uniformScale(0.015)
         perilla_tam.childs += [perilla_forma]
 
-        perilla_rot_z = sg.SceneGraphNode("perilla_tam")
-        perilla_rot_z.transform = tr.rotationX(np.radians(90))
-        perilla_rot_z.childs += [perilla_tam] 
+        perilla_rot_x = sg.SceneGraphNode("perilla_tam")
+        perilla_rot_x.transform = tr.rotationX(np.radians(90))
+        perilla_rot_x.childs += [perilla_tam] 
 
         perilla_rot = sg.SceneGraphNode("perilla_rot")
-        perilla_rot.childs += [perilla_rot_z]
+        perilla_rot.childs += [perilla_rot_x]
 
         perilla_tras = sg.SceneGraphNode("perilla_tras")
-        perilla_tras.transform = tr.translate(-1.195, 0.045, -0.85)
+        perilla_tras.transform = tr.translate(0, 0.045, -0.05)
         perilla_tras.childs += [perilla_rot]
         
         perilla2_forma = sg.SceneGraphNode("perilla2_forma")
@@ -1258,7 +1219,7 @@ class perilla_velocimetro(object):
         perilla2_forma.childs += [gpuTrianguloNegro]
 
         perilla2_tam = sg.SceneGraphNode("perilla_tam")
-        perilla2_tam.transform = tr.uniformScale(0.015)
+        perilla2_tam.transform = tr.uniformScale(0.015) #0.015
         perilla2_tam.childs += [perilla2_forma]
 
         perilla2_rot_z = sg.SceneGraphNode("perilla2_rot_z")
@@ -1269,12 +1230,14 @@ class perilla_velocimetro(object):
         perilla2_rot.childs += [perilla2_rot_z]
 
         perilla2_tras = sg.SceneGraphNode("perilla_tras")
-        perilla2_tras.transform = tr.translate(-1.195, 0.005, -0.85)
+        perilla2_tras.transform = tr.translate(0, 0.005, -0.05) #1.195
         perilla2_tras.childs += [perilla2_rot]
-
-        perillas_rotacion = sg.SceneGraphNode("perilla")
+        
+        # transformaciones a ambas perillas
+        perillas_rotacion = sg.SceneGraphNode("perillas_rotacion")
         perillas_rotacion.childs += [perilla_tras, perilla2_tras]
-    
+
+
         perilla = sg.SceneGraphNode("perilla")
         perilla.childs += [perillas_rotacion]
 
@@ -1286,9 +1249,9 @@ class perilla_velocimetro(object):
         self.perilla_rot = perilla_rot
         self.perilla2_rot = perilla2_rot
 
-        self.pos_x = 0
+        self.pos_x = -1.195
         self.pos_y = 0
-        self.pos_z = 0
+        self.pos_z = -0.8
 
         self.rotation1 = 0
         self.rotation2 = 0
@@ -1367,30 +1330,30 @@ class perilla_velocimetro(object):
         
 class indicadores(object):
     def __init__(self):
-        gpuCuadradoRojo = es.toGPUShape(bs.createColorQuad(1,0,0))
+        gpuCuadradoRojo = es.toGPUShape(bs.createColorCube(1,0,0))
         
         indicador_forma = sg.SceneGraphNode("indicador_forma")
-        indicador_forma.transform = tr.scale(1, 0.8, 0)
+        indicador_forma.transform = tr.scale(1, 0.8, 0.7)
         indicador_forma.childs += [gpuCuadradoRojo]
 
         indicador_tam = sg.SceneGraphNode("indicador_tam")
-        indicador_tam.transform = tr.uniformScale(0.08)
+        indicador_tam.transform = tr.uniformScale(0.005)
         indicador_tam.childs += [indicador_forma]
 
         indicador_tras = sg.SceneGraphNode("indicador_tras")
-        indicador_tras.transform = tr.translate(-0.35, -0.85, 0)
+        indicador_tras.transform = tr.translate (-0.0258, -0.05 - 0.005, 0) #0.005, para evitar un pequeño bug. (se superponen imagenes)
         indicador_tras.childs += [indicador_tam]
         
         indicador2_forma = sg.SceneGraphNode("indicador2_forma")
-        indicador2_forma.transform = tr.scale(1, 0.7, 0)
+        indicador2_forma.transform = tr.scale(1, 0.7, 0.04)
         indicador2_forma.childs += [gpuCuadradoRojo]
 
         indicador2_tam = sg.SceneGraphNode("indicador2_tam")
-        indicador2_tam.transform = tr.uniformScale(0.07)
+        indicador2_tam.transform = tr.uniformScale(0.004)
         indicador2_tam.childs += [gpuCuadradoRojo]
 
         indicador2_tras = sg.SceneGraphNode("indicador2_tras")
-        indicador2_tras.transform = tr.translate(0.5, -0.7, 0)
+        indicador2_tras.transform = tr.translate(0.0235, -0.055, 0) 
         indicador2_tras.childs += [indicador2_tam]
         
         
@@ -1399,25 +1362,44 @@ class indicadores(object):
         
         indicador2 = sg.SceneGraphNode("indicador2")
         indicador2.childs += [indicador2_tras]
-        
+
+        #transformaciones ambos indicadores
+        indicadores_rot_y = sg.SceneGraphNode("indicadores_rot_y")
+        indicadores_rot_y.transform = tr.rotationY(np.radians(270))
+        indicadores_rot_y.childs += [indicador, indicador2]
+
+        indicadores_rot_x = sg.SceneGraphNode("indicadores_rot_x")
+        indicadores_rot_x.transform = tr.rotationX(np.radians(90))
+        indicadores_rot_x.childs += [indicadores_rot_y]
+
+        indicadores_rot = sg.SceneGraphNode("indicadores_rot")
+        indicadores_rot.childs += [indicadores_rot_x]
+
         indicadores = sg.SceneGraphNode("indicadores")
-        indicadores.childs += [indicador, indicador2]
+        indicadores.childs += [indicadores_rot]
+
+
         
-        self.pos_x = 0
+        self.pos_x = -1.195
         self.pos_y = 0
-        self.pos_z = 0
+        self.pos_z = -0.795 # Esto para evitar un pequeño bug. (se superponen imagenes si es 0.8)
         
         self.model = indicadores
+        self.Rotacion = indicadores_rot
         self.indicador = indicador
         self.indicador2 = indicador2
+
         self.altura = 0
         self.cabeceo = 0
         self.apagar = True
         
         
         
-    def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
+    def draw(self, pipeline, projection, view):
+        self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        sg.drawSceneGraphNode(self.model, pipeline)
         
     def indicadores_accion(self, objeto , pipeline):
         
@@ -1450,44 +1432,48 @@ class you_died(object):
         
 class botones(object):
     def __init__(self):
-        gpuCuadradoGris = es.toGPUShape(bs.createColorQuad(0.6,0.6,0.7))
-        gpuCuadradoRojo = es.toGPUShape(bs.createColorQuad(1,0,0))
-        gpuCuadradoNegro = es.toGPUShape(bs.createColorQuad(0.2,0.2,0.3))
+        gpuCuadradoGris = es.toGPUShape(bs.createColorCube(0.6,0.6,0.7))
+        gpuCuadradoRojo = es.toGPUShape(bs.createColorCube(1,0,0))
+        gpuCuadradoNegro = es.toGPUShape(bs.createColorCube(0.2,0.2,0.3))
         
         barra_tam = sg.SceneGraphNode("barra_tam")
-        barra_tam.transform = tr.scale(0.15, 0.05, 0)
+        barra_tam.transform = tr.scale(0.15, 0.05, 0.05)
         barra_tam.childs += [gpuCuadradoNegro]
+
+        barra_sc = sg.SceneGraphNode("barra_sc")
+        barra_sc.transform = tr.uniformScale(0.05)
+        barra_sc.childs += [barra_tam]
         
         barra_1 = sg.SceneGraphNode("barra_1")
-        barra_1.transform = tr.translate(0.9, -0.5, 0)
-        barra_1.childs += [barra_tam]
+        barra_1.transform = tr.translate(0.05, -0.042, 0)
+        barra_1.childs += [barra_sc]
         
         barra_2 = sg.SceneGraphNode("barra_2")
-        barra_2.transform = tr.translate(0.9, -0.7, 0)
-        barra_2.childs += [barra_tam]
+        barra_2.transform = tr.translate(0.05, -0.049, 0)
+        barra_2.childs += [barra_sc]
         
         barra_3 = sg.SceneGraphNode("barra_3")
-        barra_3.transform = tr.translate(0.9, -0.9, 0)
-        barra_3.childs += [barra_tam]
+        barra_3.transform = tr.translate(0.05, -0.056, 0)
+        barra_3.childs += [barra_sc]
         
         boton_rojo = sg.SceneGraphNode("boton_rojo")
-        boton_rojo.transform = tr.uniformScale(0.1)
+        boton_rojo.transform = tr.uniformScale(0.005)
         boton_rojo.childs += [gpuCuadradoRojo]
         
         boton_gris = sg.SceneGraphNode("boton_gris")
-        boton_gris.transform = tr.uniformScale(0.1)
+        boton_gris.transform = tr.uniformScale(0.005)
         boton_gris.childs += [gpuCuadradoGris]
         
         boton1 = sg.SceneGraphNode("boton1")
-        boton1.transform = tr.translate(0.85, -0.5, 0)
+        boton1.transform = tr.translate(0.0475, -0.042, 0)
         boton1.childs += [boton_rojo]
         
         boton2 = sg.SceneGraphNode("boton2")
-        boton2.transform = tr.translate(0.85, -0.7, 0)
+        boton2.transform = tr.translate(0.0475, -0.049, 0)
         boton2.childs += [boton_gris]
         
         boton3 = sg.SceneGraphNode("boton3")
-        boton3.transform = tr.translate(0.85, -0.9, 0)
+        boton3.transform = tr.translate(0.0475, -0.056, 0)
         boton3.childs += [boton_gris]
         
         boton1_mov = sg.SceneGraphNode("boton1_mov")
@@ -1499,60 +1485,72 @@ class botones(object):
         boton3_mov = sg.SceneGraphNode("boton3_mov")
         boton3_mov.childs += [boton3]
         
+        #Transformaciones a todos los botones
+        botones_rot_y = sg.SceneGraphNode("botones_rot_y")
+        botones_rot_y.transform = tr.rotationY(np.radians(270))
+        botones_rot_y.childs += [barra_1, barra_2, barra_3, boton1_mov, boton2_mov , boton3_mov]
+
+        botones_rot_x = sg.SceneGraphNode("botones_rot_x")
+        botones_rot_x.transform = tr.rotationX(np.radians(90))
+        botones_rot_x.childs += [botones_rot_y]
+
+        botones_rot = sg.SceneGraphNode("botones_rot")
+        botones_rot.childs += [botones_rot_x]
+
         botones = sg.SceneGraphNode("botones")
-        botones.childs += [barra_1, barra_2, barra_3, boton1_mov, boton2_mov , boton3_mov]
+        botones.childs += [botones_rot]
 
 
-        self.pos_x = 0
-        self.pos_y = 0
-        self.pos_z = 0
+        self.pos_x = -1.195
+        self.pos_y = 0.0
+        self.pos_z = -0.8
         
         self.model = botones
+        self.Rotacion = botones_rot
+    
         self.boton1_mov = boton1_mov
         self.boton2_mov = boton2_mov
         self.boton3_mov = boton3_mov
-        self.pos_inicial1 = 0
-        self.pos_inicial2 = 0
-        self.pos_inicial3 = 0
+        self.pos_inicial = 0
         self.mover_b1 = False
         self.mover_b2 = False
         self.mover_b3 = False
         
         
-    def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
+    def draw(self, pipeline, projection, view):
+        self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        sg.drawSceneGraphNode(self.model, pipeline)
         
         
     def b1(self):
         if self.mover_b2 and self.mover_b3:
             self.mover_b1 = True
-            self.boton1_mov.transform = tr.translate(0.1, 0, 0)
-            self.pos_inicial1 = -0.05
+            self.boton2_mov.transform = tr.translate(0.0040, 0, 0)
         elif self.mover_b1 == False:
-            self.boton1_mov.transform = tr.translate(self.pos_inicial1, 0, 0)
+            self.boton1_mov.transform = tr.translate(self.pos_inicial, 0, 0)
         
     def b2(self):
         if self.mover_b2:
-            self.boton2_mov.transform = tr.translate(0.1, 0, 0)
-            self.pos_inicial2 = -0.05
+            self.boton2_mov.transform = tr.translate(0.0040, 0, 0)
         elif self.mover_b2 == False:
-            self.boton2_mov.transform = tr.translate(self.pos_inicial2, 0, 0)
+            self.boton2_mov.transform = tr.translate(self.pos_inicial, 0, 0)
             
     def b3(self):
         if self.mover_b3:
-            self.boton3_mov.transform = tr.translate(0.1, 0, 0)
-            self.pos_inicial3 = -0.05
+            self.boton3_mov.transform = tr.translate(0.0040, 0, 0)
         elif self.mover_b3 == False:
-            self.boton3_mov.transform = tr.translate(self.pos_inicial3, 0, 0)
+            self.boton3_mov.transform = tr.translate(self.pos_inicial, 0, 0)
         
         
         
         
-    def presionar_botones(self, pipeline):
+    def presionar_botones(self, pipeline, projection, view):
         self.b1()
         self.b2()
         self.b3()
-        self.draw(pipeline)
+        self.draw( pipeline, projection, view)
         
             
             

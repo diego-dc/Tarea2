@@ -28,23 +28,26 @@ def simulador_en_mov():
      if avion.velocidad != 0:
         montanas.crear_montanas()
         holes.crear_holes(pipeline, projection, view, dt)
+        
 
      #cielo.draw(pipeline)
      montanas.DrawMoving_x(pipeline, projection, view, dt)
      pastito.draw(pipeline, projection, view)
      #nubes.DrawMoving_x(pipeline, dt)
-     avion.prender_apagar_motor = True
      avion.en_aire = True
      avion.draw(pipeline, projection, view)
-     perillas.draw(pipeline, projection, view)
+     
      if panel.mostrar_panel:
-         panel.draw(pipeline,projection, view)
+        panel.draw(pipeline,projection, view)
+        perillas.draw(pipeline, projection, view)
+        indicadores.draw(pipeline, projection, view)
+        botones.presionar_botones(pipeline, projection, view)
      #montana.draw(pipeline, projection, view)
      
      #panel.draw(pipeline)
      #indicadores.draw(pipeline)
      #perillas.draw(pipeline)
-     #botones.presionar_botones(pipeline)
+     
     
 if __name__ == '__main__':
 
