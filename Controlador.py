@@ -48,7 +48,7 @@ class Controller():
             self.theta += dtheta
             self.panel.theta += dtheta
             self.panel.Rotacion.transform = tr.rotationY(self.panel.theta)
-            
+            self.perillas.Rotacion.transform = tr.rotationY(self.panel.theta) #Hay que llevarlo a un x positivo y rotarlo en Y
 
         if self.theta < 0:
             self.theta = 0.01
@@ -186,42 +186,53 @@ class Controller():
             if self.model.move_up:
                 viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
                 self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
-                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2], viewPos[2], viewPos[2] #REPETIR ESTO A TODOS
+                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
             elif self.model.move_down:
                 viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
                 self.panel.pos_z -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
+                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
             viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+            self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
 
         elif self.model.move_left:
             if self.model.move_up:
                 viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
                 self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
+                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
             elif self.model.move_down:
                 viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
                 self.panel.pos_z -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
+                self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
             viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+            self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
 
         elif self.model.move_up:
             if self.model.move_right:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
                 self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+                self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
             elif self.model.move_left:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
                 self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+                self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
             viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
             self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
+            self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
 
         elif self.model.move_down:
             if self.model.move_right:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
                 self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+                self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
             elif self.model.move_left:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
                 self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
+                self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
             viewPos[2] -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
             self.panel.pos_z -= 0.001 * (self.model.cabeceo_angulo * 0.025 )
+            self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2] + 0.8, viewPos[2] + 0.8, viewPos[2] + 0.8
 
         elif self.w and self.model.acelerar:
             viewPos += forward * 0.0001

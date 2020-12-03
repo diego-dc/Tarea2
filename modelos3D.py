@@ -1316,6 +1316,7 @@ class perilla_velocimetro(object):
         elif self.apagar == False:
             self.rotation1 = 2 * objeto.velocidad
             self.perilla_rot.transform = tr.rotationZ(np.radians(-self.rotation1))
+    
     def perilla2(self, objeto, pipeline):
         # Para las revoluciones del motor implementamos un angulo que aumentará acorde la velocidad
         # Con esto se logra el efecto de aumento de revoluciones cuando se acelera y reducción de estas cuando no se utiliza el motor
@@ -1402,7 +1403,9 @@ class indicadores(object):
         indicadores = sg.SceneGraphNode("indicadores")
         indicadores.childs += [indicador, indicador2]
         
-        
+        self.pos_x = 0
+        self.pos_y = 0
+        self.pos_z = 0
         
         self.model = indicadores
         self.indicador = indicador
@@ -1498,6 +1501,11 @@ class botones(object):
         
         botones = sg.SceneGraphNode("botones")
         botones.childs += [barra_1, barra_2, barra_3, boton1_mov, boton2_mov , boton3_mov]
+
+
+        self.pos_x = 0
+        self.pos_y = 0
+        self.pos_z = 0
         
         self.model = botones
         self.boton1_mov = boton1_mov
