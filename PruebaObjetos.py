@@ -20,31 +20,21 @@ from Controlador import *
 from modelos3D import *
 
 def simulador_en_mov():
-    
-     #avion.PresionarBotones(perillas, indicadores, botones)
-     #nubes.crear_nubes() #crea nubes aleatoriamente
-     if avion.velocidad != 0:
+
+    montanas.DrawMoving_x(pipeline, projection, view, dt)
+    pastito.draw(pipeline, projection, view)
+    #nubes.DrawMoving_x(pipeline, dt)
+    avion.en_aire = True
+    avion.draw(pipeline, projection, view)
+    if avion.velocidad != 0:
         montanas.crear_montanas()
         holes.crear_holes(pipeline, projection, view, dt)
-        
 
-     #cielo.draw(pipeline)
-     montanas.DrawMoving_x(pipeline, projection, view, dt)
-     pastito.draw(pipeline, projection, view)
-     #nubes.DrawMoving_x(pipeline, dt)
-     avion.en_aire = True
-     avion.draw(pipeline, projection, view)
-     
-     if panel.mostrar_panel:
+    if panel.mostrar_panel:
         panel.draw(pipeline,projection, view)
         perillas.draw(pipeline, projection, view, avion)
         indicadores.draw(pipeline, projection, view, avion)
         botones.presionar_botones(pipeline, projection, view)
-     #montana.draw(pipeline, projection, view)
-     
-     #panel.draw(pipeline)
-     #indicadores.draw(pipeline)
-     #perillas.draw(pipeline)
      
     
 if __name__ == '__main__':

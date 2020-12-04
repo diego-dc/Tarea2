@@ -269,19 +269,29 @@ class Controller():
             self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2], viewPos[2] , viewPos[2] + 0.005
 
         elif self.w and self.model.acelerar:
-            viewPos += forward * 0.0001
-            self.panel.pos_x +=  0.0001
-            self.perillas.pos_x += 0.0001
-            self.indicadores.pos_x += 0.0001
-            self.botones.pos_x += 0.0001
+            if self.model.prender_apagar_motor == True:
+                viewPos += forward * 0.0001
+                self.panel.pos_x +=  0.0001
+                self.perillas.pos_x += 0.0001
+                self.indicadores.pos_x += 0.0001
+                self.botones.pos_x += 0.0001
 
 
         elif self.s and self.model.frenar:
-            viewPos -= forward * 0.0001
-            self.panel.pos_x -=  0.0001
-            self.perillas.pos_x -= 0.0001
-            self.indicadores.pos_x -= 0.0001
-            self.botones.pos_x -= 0.0001
+            if self.model.prender_apagar_motor == True:
+                viewPos -= forward * 0.0001
+                self.panel.pos_x -=  0.0001
+                self.perillas.pos_x -= 0.0001
+                self.indicadores.pos_x -= 0.0001
+                self.botones.pos_x -= 0.0001
+
+        elif self.model.pos_z > -0.5 and self.model.acelerar == False:
+            viewPos -= forward * 0.0000125
+            self.panel.pos_x -=  0.0000125
+            self.perillas.pos_x -= 0.0000125
+            self.indicadores.pos_x -= 0.0000125
+            self.botones.pos_x -= 0.0000125
+            
 
         else:
             pass
