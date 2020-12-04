@@ -22,8 +22,6 @@ from modelos3D import *
 def simulador_en_mov():
     
      #avion.PresionarBotones(perillas, indicadores, botones)
-     #perillas.perillas_accion(avion, pipeline)
-     #indicadores.indicadores_accion(avion, pipeline)
      #nubes.crear_nubes() #crea nubes aleatoriamente
      if avion.velocidad != 0:
         montanas.crear_montanas()
@@ -39,8 +37,8 @@ def simulador_en_mov():
      
      if panel.mostrar_panel:
         panel.draw(pipeline,projection, view)
-        perillas.draw(pipeline, projection, view)
-        indicadores.draw(pipeline, projection, view)
+        perillas.draw(pipeline, projection, view, avion)
+        indicadores.draw(pipeline, projection, view, avion)
         botones.presionar_botones(pipeline, projection, view)
      #montana.draw(pipeline, projection, view)
      

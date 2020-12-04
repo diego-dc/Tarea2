@@ -131,43 +131,59 @@ class Controller():
                 if self.model.en_aire:
                     self.model.moverAvion = True
                     
+            # NOTAR QUE:
+            # FALSE -> APAGADO.
+            # TRUE -> ENCENDIDO
+
             elif (key == glfw.KEY_J):
-                if self.model.prender_apagar_todo == False:    
-                    self.model.prender_apagar_todo = not self.model.prender_apagar_todo
-                    print("Apagando todo")
-                    if self.model.prender_apagar_motor == False and self.model.prender_apagar_panel == False:
+                self.model.prender_apagar_todo = not self.model.prender_apagar_todo
+                if self.model.prender_apagar_todo == True:
+                    if self.model.prender_apagar_motor == False and self.botones.mover_b3 == False:
                         print("Ya está todo apagado")
                         self.model.prender_apagar_todo = False
-                elif self.model.prender_apagar_todo == True:    
-                    self.botones.mover_b1 = False
-                    self.model.prender_apagar_panel = False
-                    self.model.prender_apagar_motor = False
+                        self.botones.mover_b1 = False
+                    else:
+                        print("Apagando todo")
+                        #Se apaga todo -> se mueve botón1 rojo
+                        self.botones.mover_b1 = False
+                        self.model.prender_apagar_todo = False
+                        #Se apaga Motor -> Se apaga el motor, se mueve boton2
+                        self.model.prender_apagar_motor = False
+                        self.botones.mover_b2 = False
+                        #Se apaga el panel -> se mueve boton3, se apagan todos accesorios.
+                        self.perillas.prender = False
+                        self.indicadores.prender = False
+                        self.botones.mover_b3 = False
+                    
+                else:
                     self.model.prender_apagar_todo = False
+                    
                 
                 
                 
             elif (key == glfw.KEY_K):
                 self.model.prender_apagar_motor = not self.model.prender_apagar_motor
                 if self.model.prender_apagar_motor:
-                    self.botones.mover_b2 = True
-                elif self.model.prender_apagar_motor == False:
-                    self.botones.mover_b2 = False
-                    self.perillas.apagar = True
-                if self.model.prender_apagar_motor == False:
                     print("Prendiendo Motor")
-                elif self.model.prender_apagar_motor == True:
+                    self.botones.mover_b2 = True
+                    self.perillas.prender = True
+                elif self.model.prender_apagar_motor == False:
                     print("Apagando Motor")
+                    self.botones.mover_b2 = False
+                    self.perillas.prender = False
+                    
                 
                     
             
             elif (key == glfw.KEY_L):
-                self.perillas.apagar = not self.perillas.apagar
-                self.indicadores.apagar = not self.indicadores.apagar
+                self.indicadores.prender = not self.indicadores.prender
                 self.botones.mover_b3 = not self.botones.mover_b3
-                if self.perillas.apagar == False:
+                if self.botones.mover_b3 == True:
                     print("Prendiendo Panel")
-                elif self.perillas.apagar == True:
+                    self.perillas.prender = True
+                elif self.botones.mover_b3 == False:
                     print("Apagando Panel")
+                    self.perillas.prender = False
 
             elif (key == glfw.KEY_P):
                 self.panel.mostrar_panel = not self.panel.mostrar_panel

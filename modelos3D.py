@@ -262,7 +262,6 @@ class plane(object):
         self.aterrizar = False
         
         self.prender_apagar_motor = False
-        self.prender_apagar_panel = False
         self.prender_apagar_todo = False
 
         self.camara1 = True
@@ -1203,12 +1202,8 @@ class perilla_velocimetro(object):
         perilla_tam.transform = tr.uniformScale(0.015)
         perilla_tam.childs += [perilla_forma]
 
-        perilla_rot_x = sg.SceneGraphNode("perilla_tam")
-        perilla_rot_x.transform = tr.rotationX(np.radians(90))
-        perilla_rot_x.childs += [perilla_tam] 
-
         perilla_rot = sg.SceneGraphNode("perilla_rot")
-        perilla_rot.childs += [perilla_rot_x]
+        perilla_rot.childs += [perilla_tam]
 
         perilla_tras = sg.SceneGraphNode("perilla_tras")
         perilla_tras.transform = tr.translate(0, 0.045, -0.05)
@@ -1222,12 +1217,9 @@ class perilla_velocimetro(object):
         perilla2_tam.transform = tr.uniformScale(0.015) #0.015
         perilla2_tam.childs += [perilla2_forma]
 
-        perilla2_rot_z = sg.SceneGraphNode("perilla2_rot_z")
-        perilla2_rot_z.transform = tr.rotationX(np.radians(90))
-        perilla2_rot_z.childs += [perilla2_tam] 
 
         perilla2_rot = sg.SceneGraphNode("perilla_rot")
-        perilla2_rot.childs += [perilla2_rot_z]
+        perilla2_rot.childs += [perilla2_tam]
 
         perilla2_tras = sg.SceneGraphNode("perilla_tras")
         perilla2_tras.transform = tr.translate(0, 0.005, -0.05) #1.195
@@ -1256,77 +1248,74 @@ class perilla_velocimetro(object):
         self.rotation1 = 0
         self.rotation2 = 0
         self.angulo = 0
-        self.apagar = True
+        self.prender = False
         
-    def draw(self, pipeline, projection, view):
+    def draw(self, pipeline, projection, view, objeto):
+        self.perilla1(objeto)
+        self.perilla2(objeto)
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
         
-    
-    def perillas_accion(self, objeto, pipeline, projection, view):
-        self.perilla1(objeto, pipeline)
-        self.perilla2(objeto,pipeline)
-        self.draw(pipeline, projection, view)
         
-    def perilla1(self, objeto, pipeline):
+    def perilla1(self, objeto):
         # La rotación 1 será dependiente de la velocidad del avión, pues sera nuestro velocimetro
-        if self.apagar == False and self.rotation1 < 2 * objeto.velocidad:
+        if self.prender == True and self.rotation1 < 2 * objeto.velocidad:
             self.rotation1 += 1
-            self.perilla_rot.transform = tr.rotationZ(np.radians(-self.rotation1))
+            self.perilla_rot.transform = tr.rotationX(np.radians(self.rotation1))
             
-        elif self.apagar == False:
+        elif self.prender == True:
             self.rotation1 = 2 * objeto.velocidad
-            self.perilla_rot.transform = tr.rotationZ(np.radians(-self.rotation1))
+            self.perilla_rot.transform = tr.rotationX(np.radians(self.rotation1))
     
-    def perilla2(self, objeto, pipeline):
+    def perilla2(self, objeto):
         # Para las revoluciones del motor implementamos un angulo que aumentará acorde la velocidad
         # Con esto se logra el efecto de aumento de revoluciones cuando se acelera y reducción de estas cuando no se utiliza el motor
-        if objeto.acelerar == True and self.apagar == False:
+        if objeto.acelerar == True and self.prender == True:
             if objeto.prender_apagar_motor == True:
                 if self.rotation2 < 270:
                     self.rotation2 += 0.5
                     self.angulo += 0.0016
-                    self.perilla2_rot.transform = tr.rotationZ(np.radians(-(self.rotation2 + self.angulo)))
+                    self.perilla2_rot.transform = tr.rotationX(np.radians((self.rotation2 + self.angulo)))
                 else:
-                    self.perilla2_rot.transform = tr.rotationZ(-self.rotation2 + self.angulo)
-        elif objeto.frenar ==  True and self.apagar == False:
+                    self.perilla2_rot.transform = tr.rotationX(-(-self.rotation2 + self.angulo))
+        elif objeto.frenar ==  True and self.prender == True:
             if objeto.prender_apagar_motor == True:
                 if self.rotation2 > 0:
                     self.rotation2 -= 0.5
                     self.angulo -= 0.0016
-                    self.perilla2_rot.transform = tr.rotationZ(np.radians(-(self.rotation2 + self.angulo)))
+                    self.perilla2_rot.transform = tr.rotationX(np.radians(self.rotation2 + self.angulo))
                 else:
-                    self.perilla2_rot.transform = tr.rotationZ(np.radians(-(self.rotation2 + self.angulo)))        
-        elif self.apagar == True:
+                    self.perilla2_rot.transform = tr.rotationX(np.radians(self.rotation2 + self.angulo))
+        elif self.prender == False:
             if self.rotation1 > 0 and self.rotation2 > 0:
                 if self.rotation1 > 0:
                     self.rotation1 -= 3 
                 
                 self.rotation2 -= 3
                 self.angulo = 0
-                self.perilla_rot.transform = tr.rotationZ(np.radians(-self.rotation1))
-                self.perilla2_rot.transform = tr.rotationZ(np.radians(-self.rotation2))  
+                self.perilla_rot.transform = tr.rotationX(np.radians(self.rotation1))
+                self.perilla2_rot.transform = tr.rotationX(np.radians(self.rotation2))  
         elif objeto.acelerar == False and objeto.frenar == False:
-            if self.apagar == False:
+            if self.prender == True:
                 if (1.75 * objeto.velocidad) < self.rotation2 :
                     self.rotation2 -= 0.5
                     self.angulo -= 0.0016
-                    self.perilla2_rot.transform = tr.rotationZ(np.radians(-self.rotation2))
+                    self.perilla2_rot.transform = tr.rotationX(np.radians(self.rotation2))
                 elif (1.75 * objeto.velocidad) > self.rotation2:
                     self.rotation2 += 0.5
                     self.angulo += 0.0016
-                    self.perilla2_rot.transform = tr.rotationZ(np.radians(-self.rotation2))
-        elif self.apagar == True:
+                    self.perilla2_rot.transform = tr.rotationX(np.radians(self.rotation2))
+        elif self.prender == False:
             if self.rotation1 > 0 and self.rotation2 > 0:
                 if self.rotation1 > 0:
                     self.rotation1 -= 3 
                 elif self.rotation > 0:
                     self.rotation2 -= 3
                 self.angulo = 0
-                self.perilla_rot.transform = tr.rotationZ(np.radians(-self.rotation1))
-                self.perilla2_rot.transform = tr.rotationZ(np.radians(-self.rotation2))  
+                self.perilla_rot.transform = tr.rotationX(np.radians(self.rotation1))
+                self.perilla2_rot.transform = tr.rotationX(np.radians(self.rotation2))  
         
 class indicadores(object):
     def __init__(self):
@@ -1341,7 +1330,7 @@ class indicadores(object):
         indicador_tam.childs += [indicador_forma]
 
         indicador_tras = sg.SceneGraphNode("indicador_tras")
-        indicador_tras.transform = tr.translate (-0.0258, -0.05 - 0.005, 0) #0.005, para evitar un pequeño bug. (se superponen imagenes)
+        indicador_tras.transform = tr.translate (-0.026, -0.05 - 0.012, 0) 
         indicador_tras.childs += [indicador_tam]
         
         indicador2_forma = sg.SceneGraphNode("indicador2_forma")
@@ -1353,7 +1342,7 @@ class indicadores(object):
         indicador2_tam.childs += [gpuCuadradoRojo]
 
         indicador2_tras = sg.SceneGraphNode("indicador2_tras")
-        indicador2_tras.transform = tr.translate(0.0235, -0.055, 0) 
+        indicador2_tras.transform = tr.translate(0.0235, -0.05 - 0.0062, 0) #0.00625, para evitar un pequeño bug. (se superponen imagenes)
         indicador2_tras.childs += [indicador2_tam]
         
         
@@ -1391,29 +1380,26 @@ class indicadores(object):
 
         self.altura = 0
         self.cabeceo = 0
-        self.apagar = True
+        self.prender = False
         
         
         
-    def draw(self, pipeline, projection, view):
+    def draw(self, pipeline, projection, view, objeto):
+        self.indicadores_accion(objeto)
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
         
-    def indicadores_accion(self, objeto , pipeline):
-        
-        self.altura = objeto.pos_y + 0.175
-        if 0.175 < self.altura < 1 and self.apagar == False:
-            self.indicador.transform = tr.translate(0,self.altura * 0.3,0)
+    def indicadores_accion(self, objeto):
+        self.altura = objeto.pos_z + 0.95
+        if 0 <= self.altura < 1.95 and self.prender == True:
+            self.indicador.transform = tr.translate(0, self.altura * 0.0065, 0)
         self.cabeceo = objeto.cabeceo_angulo
-        if -35.5 < self.cabeceo < 35.5 and self.apagar == False:
-            self.indicador2.transform = tr.translate(0, self.cabeceo * 0.0025, 0)
+        if -35.5 < self.cabeceo < 35.5 and self.prender == True:
+            self.indicador2.transform = tr.translate(0, self.cabeceo * 0.000125, 0)
         else:
-            self.altura = 0
-            self.indicador.transform = tr.translate(0,self.altura * 0.3,0)
-        
-        self.draw(pipeline)
+            objeto.youdied = True
         
         
 class you_died(object):
@@ -1525,9 +1511,9 @@ class botones(object):
         
         
     def b1(self):
-        if self.mover_b2 and self.mover_b3:
+        if self.mover_b2 or self.mover_b3:
             self.mover_b1 = True
-            self.boton2_mov.transform = tr.translate(0.0040, 0, 0)
+            self.boton1_mov.transform = tr.translate(0.0040, 0, 0)
         elif self.mover_b1 == False:
             self.boton1_mov.transform = tr.translate(self.pos_inicial, 0, 0)
         
