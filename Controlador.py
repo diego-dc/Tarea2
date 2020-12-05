@@ -17,6 +17,7 @@ class Controller():
         self.perillas = None
         self.botones = None
         self.indicadores = None
+        self.ruedas = None
 
         self.position = np.zeros(3)
         self.old_pos = 0, 0
@@ -28,11 +29,12 @@ class Controller():
     def set_model(self, m):
         self.model = m
     
-    def set_adjuntos(self, panel, perillas, botones, indicadores):
+    def set_adjuntos(self, panel, perillas, botones, indicadores, ruedas):
         self.panel = panel
         self.perillas = perillas
         self.botones = botones 
         self.indicadores = indicadores
+        self.ruedas = ruedas
 
     def update_angle(self, dy, dz):
 
@@ -191,15 +193,13 @@ class Controller():
                 
             
             elif (key == glfw.KEY_SPACE):
-                
-                if self.model.en_aire == True and self.model.velocidad < 50:
-                    self.model.aterrizar = True
-                    print("Aterrizando avión")
+                if self.ruedas.desplegar:
+                    self.ruedas.desplegar = False
+                    print("Preparando Despegue")
                     
-                elif self.model.en_aire == False and self.model.velocidad > 50:
-                    self.model.despegar = True
-                    print("Despegando avión")
-                else: print("ACCIÓN NO PERMITIDA, VERIFIQUE VELOCIDAD")
+                elif self.ruedas.desplegar == False:
+                    self.ruedas.desplegar = True
+                    print("Preparando Aterrizaje")
                     
                 
             else:

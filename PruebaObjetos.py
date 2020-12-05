@@ -24,7 +24,9 @@ def simulador_en_mov():
     montanas.DrawMoving_x(pipeline, projection, view, dt)
     pastito.draw(pipeline, projection, view)
     avion.en_aire = True
-    avion.draw(pipeline, projection, view)
+    avion.draw(pipeline, projection, view, ruedas)
+    ruedas.draw(pipeline, projection, view, avion)
+
     if avion.velocidad != 0:
         montanas.crear_montanas()
         holes.crear_holes(pipeline, projection, view, dt)
@@ -34,7 +36,7 @@ def simulador_en_mov():
         perillas.draw(pipeline, projection, view, avion)
         indicadores.draw(pipeline, projection, view, avion)
         botones.presionar_botones(pipeline, projection, view)
-     
+        
     
 if __name__ == '__main__':
 
@@ -86,6 +88,7 @@ if __name__ == '__main__':
 
     #Avion
     avion = plane()
+    ruedas = ruedas()
     panel = panel_de_vuelo()
     perillas = perilla_velocimetro()
     botones = botones()
@@ -93,7 +96,7 @@ if __name__ == '__main__':
 
     # Le entregamos el modelo que trabajara el controlador
     controlador.set_model(avion)
-    controlador.set_adjuntos(panel, perillas, botones, indicadores)
+    controlador.set_adjuntos(panel, perillas, botones, indicadores, ruedas)
 
     # Creamos la camara y la proyección
     #projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)

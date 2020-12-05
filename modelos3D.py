@@ -44,31 +44,15 @@ class pasto(object):
         pastito_c = sg.SceneGraphNode("pastito_c")
         pastito_c.childs += [pastito]
         
-        self.pos_y = 0
-        self.elevar = False
-        self.descender = False 
         self.model = pastito_c
         
         
     def draw(self, pipeline, projection, view):
-        self.model.transform = tr.translate(0, 0, -0.98)
+        self.model.transform = tr.translate(0, 0, -1)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
         
-    def update_up(self):
-        if self.pos_y <= 0:
-            self.pos_y += 0.002
-            self.model.transform = tr.translate(0, self.pos_y, 0)
-        else: 
-            self.model.transform = tr.translate(0, self.pos_y, 0)
-        
-    def update_down(self):
-        if self.pos_y >= -0.2:
-            self.pos_y -= 0.002
-            self.model.transform = tr.translate(0, self.pos_y, 0)
-        else:
-            self.model.transform = tr.translate(0, self.pos_y, 0)
 
 #creamos el grafo para un objeto que hace un avión 
 class plane(object):
@@ -256,8 +240,6 @@ class plane(object):
         self.velocidad = 0
         self.acelerar = False
         self.frenar = False
-        
-        self.ruedas_aterrizar = True
         
         self.prender_apagar_motor = False
         self.prender_apagar_todo = False
@@ -451,11 +433,12 @@ class plane(object):
             if self.velocidad < 30 and self.en_aire:
                 self.caida_libre = True
            
-    def despegar_aterrizar(self):
-        if self.ruedas_aterrizar and self.pos_z < -0.9:    
-            if self.pos_z > -0.95 and self.velocidad < 30:
+    def despegar_aterrizar(self, ruedas):
+        if ruedas.desplegar and self.pos_z < -0.85:    
+            if self.pos_z > -0.95 and self.velocidad < 50:
                 self.move_down = True
                 self.Move_plane
+        
 
     def caidaLibre(self):
         if self.caida_libre:
@@ -466,15 +449,114 @@ class plane(object):
             if self.pos_z <= -0.95:
                 self.youdied = True
     
-    
-    def draw(self, pipeline, projection, view):
+    def draw(self, pipeline, projection, view, ruedas):
         self.Move_plane()
-        self.despegar_aterrizar()
+        self.despegar_aterrizar(ruedas)
         self.caidaLibre()
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
+
+class ruedas(object):
+    def __init__(self):
+        gpuCuboGris = es.toGPUShape(bs.createColorCube(0.5, 0.5, 0.5))
+        gpuCuboNegro = es.toGPUShape(bs.createColorCube(0.1, 0.1, 0.1))
+
+        soportes = sg.SceneGraphNode("soportes")
+        soportes.transform = tr.scale(0.2, 0.2, 0.4)
+        soportes.childs += [gpuCuboGris]
+
+        ruedas = sg.SceneGraphNode("ruedas")
+        ruedas.transform = tr.scale(0.35, 0.15, 0.35)
+        ruedas.childs += [gpuCuboNegro]
+
+        Rotacion = sg.SceneGraphNode("Rotacion")
+        Rotacion.childs += [ruedas]
+
+        rueda1_tras = sg.SceneGraphNode("rueda1_tras")
+        rueda1_tras.transform = tr.translate(0, 0.2, -0.3)
+        rueda1_tras.childs += [Rotacion]
+        
+        rueda2_tras = sg.SceneGraphNode("rueda2_tras")
+        rueda2_tras.transform = tr.translate(0, -0.2, -0.3)
+        rueda2_tras.childs += [Rotacion]
+
+        soporte1_tras = sg.SceneGraphNode("soporte1_tras")
+        soporte1_tras.transform = tr.translate(0, 0.2, 0)
+        soporte1_tras.childs += [soportes]
+
+        soporte2_tras = sg.SceneGraphNode("soporte2_tras")
+        soporte2_tras.transform = tr.translate(0, -0.2, 0)
+        soporte2_tras.childs += [soportes]
+
+        ruedas_sc = sg.SceneGraphNode("ruedas_sc")
+        ruedas_sc.transform = tr.uniformScale(0.025)
+        ruedas_sc.childs += [rueda1_tras, rueda2_tras, soporte1_tras, soporte2_tras]
+
+        ruedas_rot_x = sg.SceneGraphNode("ruedas_rot_x")
+        ruedas_rot_x.childs += [ruedas_sc]
+
+        ruedas_rot_y = sg.SceneGraphNode("ruedas_rot_y")
+        ruedas_rot_y.childs += [ruedas_rot_x]
+
+        ruedas_tras = sg.SceneGraphNode("ruedas_tras")
+        ruedas_tras.childs += [ruedas_rot_y]
+
+        ruedas_complete = sg.SceneGraphNode("ruedas_complete")
+        ruedas_complete.childs += [ruedas_tras]
+
+        self.main = None
+        self.model = ruedas_complete
+
+        self.Rotacion_vel = Rotacion
+        self.Rotacion_ruedas_x = ruedas_rot_x
+        self.Rotacion_ruedas_y = ruedas_rot_y
+        self.trasladar = ruedas_tras
+
+        self.angulo_x = 0
+        self.angulo_y = 0
+
+        self.desplegar = True
+        self.mostrar = True
+
+        self.pos_x = -0.5
+        self.pos_y = 0
+        self.pos_z = -0.9475
+        self.bajar_subir_ruedas = 0 # 0 estan arribas, -0.005 estan abajo
+
+    def set_main(self, objeto):
+        self.main = objeto
+        self.pos_x = self.main.pos_x
+        self.pos_y = self.main.pos_y
+        self.pos_z = self.main.pos_z - 0.0025
+        self.angulo_x = self.main.angulo_inclinacion
+        self.angulo_y = self.main.cabeceo_angulo
+        self.Rotacion_ruedas_x.transform = tr.rotationX(np.radians(self.angulo_x))
+        self.Rotacion_ruedas_y.transform = tr.rotationY(np.radians(self.angulo_y))
+
+    def desplegar_ruedas(self):
+        if self.desplegar == True and self.bajar_subir_ruedas > -0.005:
+            self.mostrar = True
+            self.bajar_subir_ruedas -= 0.0001
+            self.trasladar.transform = tr.translate(0, 0, self.bajar_subir_ruedas)
+        elif self.desplegar == False and self.bajar_subir_ruedas <= 0:
+            self.bajar_subir_ruedas += 0.0001
+            self.trasladar.transform = tr.translate(0, 0, self.bajar_subir_ruedas)
+            if self.bajar_subir_ruedas >= 0:
+                self.mostrar = False
+        
+        
+
+    
+    def draw(self, pipeline, projection, view, objeto):
+        self.set_main(objeto)
+        self.desplegar_ruedas()
+        self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        if self.mostrar:
+            sg.drawSceneGraphNode(self.model, pipeline)
 
 
 #importamos ramdom para que aparezcan de forma aleatoria las nubes
@@ -804,7 +886,6 @@ class createMontanas(object):
         self.update(dt)
         self.draw(pipeline, projection, view)
  
-
 
 class panel_de_vuelo(object):
     def __init__(self):
