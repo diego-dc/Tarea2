@@ -438,7 +438,7 @@ class plane(object):
             if self.pos_z > -0.95 and self.velocidad < 50:
                 self.move_down = True
                 self.Move_plane
-        
+        else: self.pos_inicial()
 
     def caidaLibre(self):
         if self.caida_libre:
