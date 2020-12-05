@@ -23,7 +23,6 @@ def simulador_en_mov():
 
     montanas.DrawMoving_x(pipeline, projection, view, dt)
     pastito.draw(pipeline, projection, view)
-    #nubes.DrawMoving_x(pipeline, dt)
     avion.en_aire = True
     avion.draw(pipeline, projection, view)
     if avion.velocidad != 0:
