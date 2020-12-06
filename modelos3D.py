@@ -305,7 +305,7 @@ class plane(object):
     def Cabeceo(self):
         # definimos lo que ocurre en caida libre
         if self.caida_libre:
-            self.cabeceo_nodo.transform = tr.rotationY(0.8)
+            self.cabeceo_nodo.transform = tr.rotationY(0.4)
         # y lo que ocurre en vuelo normal
         else:
             if self.inclinacion_der and np.radians(self.angulo_inclinacion) < 1.1:
@@ -317,12 +317,12 @@ class plane(object):
             if self.cabeceo_up:
                 self.cabeceo_angulo -= 0.3
                 self.cabeceo_nodo.transform = tr.rotationY(np.radians(self.cabeceo_angulo))
-                if np.radians(self.cabeceo_angulo) < -0.8:
+                if np.radians(self.cabeceo_angulo) < -0.85:
                     self.caida_libre = True
             if self.cabeceo_down:
                 self.cabeceo_angulo += 0.3
                 self.cabeceo_nodo.transform = tr.rotationY(np.radians(self.cabeceo_angulo))
-                if np.radians(self.cabeceo_angulo) > 0.8:
+                if np.radians(self.cabeceo_angulo) > 0.85:
                      self.caida_libre = True
             if self.inclinacion_der == False and self.inclinacion_izq == False:
                 if self.angulo_inclinacion > 0:
@@ -340,8 +340,17 @@ class plane(object):
     # Nos actualiza el valor de verdad del movimiento cuando se quiera mover el avion hacia la derecha 
     # Nos actualiza el valor de verdad del movimiento cuando se quiera mover el avion hacia la izquierda
     # También cuando se acelera o se frena  
-    def Move_plane(self):
+    def Move_plane(self, ruedas):
         if self.move_up or self.move_down:
+            print(self.pos_z)
+            if self.pos_z <= -0.95 and ruedas.desplegar:
+                print("xd nosemueve")
+                self.move_down = False
+                self.move_up = False
+                self.moverAvion = False
+                self.cabeceo_angulo = 0
+                self.cabeceo_nodo.transform = tr.rotationZ(np.radians(0))
+                self.pos_z = -0.95
             self.Cabeceo()
             self.posAvion()
         elif self.acelerar or self.frenar:
@@ -385,11 +394,11 @@ class plane(object):
             # Lo movemos hacia arriba
             self.pos_z += -(0.001 * (self.cabeceo_angulo * 0.03))
             self.update(self.pos_x, self.pos_y, self.pos_z)
-            #if self.pos_z >= 0.8:
-                #self.caida_libre = True
+            if self.pos_z >= 0.85:
+                self.caida_libre = True
 
         #Si se mueve hacia abajo
-        elif self.move_down:
+        elif self.move_down and self.pos_z >= -0.95:
             # verificamos los mismo mov. anteriores cuando baja
             if self.move_left and self.pos_y <= 1:
                 self.pos_y += -(0.001 * (self.angulo_inclinacion * 0.03))
@@ -400,8 +409,7 @@ class plane(object):
             # Movemos hacia abajo el avion
             self.pos_z -= 0.001 * (self.cabeceo_angulo * 0.025 )
             self.update(self.pos_x, self.pos_y, self.pos_z)
-            #if self.pos_z <= -0.12 and self.en_aire:
-                #self.caida_libre = True
+            
         elif self.move_right and self.pos_y >= -1:
             self.pos_y -= 0.001 * (self.angulo_inclinacion * 0.03)
             self.update(self.pos_x, self.pos_y, self.pos_z)
@@ -411,12 +419,17 @@ class plane(object):
         self.velocidad_avion()
     
     def velocidad_avion(self):
+        # Si el avion eterriza, comienza a frenar.
+        if self.pos_z == -0.95 and self.velocidad > 40:
+            self.pos_x -= 0.0000025
+            self.velocidad -= 0.0125
+            self.update(self.pos_x, self.pos_y, self.pos_z)
         # El avion frena por el aire en la altura.
         if self.pos_z > -0.5 and self.acelerar == False:
             self.pos_x -= 0.0000025
             self.velocidad -= 0.0125
             self.update(self.pos_x, self.pos_y, self.pos_z)
-            if self.velocidad < 30 and self.ruedas_aterrizar == False:
+            if self.velocidad < 30:
                 self.caida_libre = True
         # verifica si acelera
         elif self.acelerar and self.prender_apagar_motor:
@@ -430,29 +443,23 @@ class plane(object):
             self.pos_x -= 0.00002
             self.velocidad -= 0.1
             self.update(self.pos_x, self.pos_y, self.pos_z)
-            if self.velocidad < 30 and self.en_aire:
+            if self.velocidad < 30 and self.pos_z != -0.95:
                 self.caida_libre = True
            
-    def despegar_aterrizar(self, ruedas):
-        if ruedas.desplegar and self.pos_z < -0.85:    
-            if self.pos_z > -0.95 and self.velocidad < 50:
-                self.move_down = True
-                self.Move_plane
-        else: self.pos_inicial()
 
-    def caidaLibre(self):
+    def caidaLibre(self, ruedas):
         if self.caida_libre:
+            ruedas.desplegar = False
             self.move_up = False
             if self.pos_z > -0.95:
                 self.move_down = True
-                self.Move_plane()
+                self.Move_plane(ruedas)
             if self.pos_z <= -0.95:
                 self.youdied = True
     
     def draw(self, pipeline, projection, view, ruedas):
-        self.Move_plane()
-        self.despegar_aterrizar(ruedas)
-        self.caidaLibre()
+        self.Move_plane(ruedas)
+        self.caidaLibre(ruedas)
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)

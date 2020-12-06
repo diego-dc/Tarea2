@@ -80,21 +80,21 @@ class Controller():
     
         elif (action == glfw.PRESS or action == glfw.REPEAT):
             if( key == glfw.KEY_UP):
-                if self.model.en_aire:
+                if self.model.pos_z >= -0.95 and self.ruedas.desplegar == False:
                     print("cabeceo Arriba")
                     self.model.cabeceo_up = True
                     self.model.moverAvion = True
-                    if self.model.cabeceo_angulo >= 0:
+                    if self.model.cabeceo_angulo <= 0:
                         self.model.move_up = True
                 else:
                     print("No se puede maniobrar el avión en tierra")
                 
             elif (key == glfw.KEY_DOWN):
-                if self.model.en_aire:
+                if self.model.pos_z > -0.95:
                     print("Cabeceo Abajo")
                     self.model.cabeceo_down = True
                     self.model.moverAvion = True
-                    if self.model.cabeceo_angulo <= 0:
+                    if self.model.cabeceo_angulo >= 0:
                         self.model.move_down = True
                 else:
                     print("No se puede maniobrar el avión en tierra")
@@ -255,7 +255,7 @@ class Controller():
             self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
             self.perillas.pos_z, self.botones.pos_z, self.indicadores.pos_z = viewPos[2], viewPos[2] , viewPos[2] + 0.005
 
-        elif self.model.move_down:
+        elif self.model.move_down and self.model.pos_z >= -0.95:
             if self.model.move_right:
                 viewPos[1] -= (0.001 * (self.model.angulo_inclinacion * 0.03))
                 self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
@@ -286,6 +286,13 @@ class Controller():
                 self.botones.pos_x -= 0.0001
 
         elif self.model.pos_z > -0.5 and self.model.acelerar == False:
+            viewPos -= forward * 0.0000125
+            self.panel.pos_x -=  0.0000125
+            self.perillas.pos_x -= 0.0000125
+            self.indicadores.pos_x -= 0.0000125
+            self.botones.pos_x -= 0.0000125
+
+        elif self.model.pos_z == -0.95 and self.model.velocidad > 40:
             viewPos -= forward * 0.0000125
             self.panel.pos_x -=  0.0000125
             self.perillas.pos_x -= 0.0000125
