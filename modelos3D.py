@@ -447,6 +447,7 @@ class plane(object):
         self.Move_plane(ruedas)
         self.caidaLibre(ruedas)
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)

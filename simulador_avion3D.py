@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Sep 30 17:46:23 2020
+Created on Fri Oct  2 19:10:48 2020
 
 @author: diegc
 """
@@ -11,216 +11,195 @@ import OpenGL.GL.shaders
 import numpy as np
 import sys
 
-import transformations2 as tr
+import transformations2 as tr2
+import lighting_shaders as ls
 import basic_shapes as bs
 import scene_graph2 as sg
 import easy_shaders as es
-
-from modelos import *
 from Controlador import * 
 
+from modelos3D import *
 
 def simulador_en_mov():
-    
-     avion.PresionarBotones(perillas, indicadores, botones)
-     perillas.perillas_accion(avion, pipeline)
-     indicadores.indicadores_accion(avion, pipeline)
-     nubes.crear_nubes() #crea nubes aleatoriamente
-     montanas.crear_montanas()
-     
-     
-     
-     
-     cielo.draw(pipeline)
-     montanas.DrawMoving_x(pipeline, dt)
-     pastito.draw(pipeline)
-     nubes.DrawMoving_x(pipeline, dt)
-     avion.draw(pipeline)
-     panel.draw(pipeline)
-     indicadores.draw(pipeline)
-     perillas.draw(pipeline)
-     botones.presionar_botones(pipeline)
-     
-def simulador_quieto():
-     
-     avion.PresionarBotones(perillas, indicadores, botones)
-     cielo.draw(pipeline)
-     montanas.draw(pipeline)
-     pastito.draw(pipeline)
-     nubes.draw(pipeline)
-     avion.draw(pipeline)
-     panel.draw(pipeline)
-     indicadores.draw(pipeline)
-     perillas.draw(pipeline)
-     botones.presionar_botones(pipeline)
-     
-# Con esta función modificaremos la posición en Y del escenario para simular ascenso o descenso 
-def simulador_elevar_descender():
-    if avion.despegar:
-        
-        montanas.en_aire = True
-        nubes.en_aire = True
-        pastito.update_down()
-        nubes.crear_nubes() #crea nubes aleatoriamente
-        montanas.crear_montanas()
-        
-        cielo.draw(pipeline)
-        montanas.DrawMovingDown_x_y(pipeline, dt)
-        pastito.draw(pipeline)
-        nubes.DrawMovingDown_x_y(pipeline, dt)
-        avion.draw(pipeline)
-        panel.draw(pipeline)
-        indicadores.draw(pipeline)
-        perillas.draw(pipeline)
-        botones.presionar_botones(pipeline)
-        
-    if avion.aterrizar or avion.caida_libre:
-        
-        montanas.en_aire = False
-        nubes.en_aire = False
-        pastito.update_up()
-        nubes.crear_nubes() #crea nubes aleatoriamente
-        montanas.crear_montanas()
-        
-        cielo.draw(pipeline)
-        montanas.DrawMovingUp_x_y(pipeline, dt)
-        pastito.draw(pipeline)
-        nubes.DrawMovingUp_x_y(pipeline, dt)
-        avion.draw(pipeline)
-        panel.draw(pipeline)
-        indicadores.draw(pipeline)
-        perillas.draw(pipeline)
-        botones.presionar_botones(pipeline)
+    print(avion.velocidad)
+    montanas.DrawMoving_x(pipeline, projection, view, dt) #si usamos ighting_pipeline -> se ve horrible
+    pastito.draw(pipeline, projection, view)
+    avion.draw(pipeline, projection, view, ruedas)
+    ruedas.draw(pipeline, projection, view, avion)
 
-if __name__ == "__main__":
+    if avion.velocidad != 0:
+        montanas.crear_montanas()
+        holes.crear_holes(pipeline, projection, view, dt)
+
+    if panel.mostrar_panel:
+        glUseProgram(pipeline.shaderProgram)
+        panel.draw(pipeline,projection, view)
+        perillas.draw(pipeline, projection, view, avion)
+        indicadores.draw(pipeline, projection, view, avion)
+        botones.presionar_botones(pipeline, projection, view)
+    
+    if avion.youdied:
+        pass
+        
+    
+if __name__ == '__main__':
 
     # Initialize glfw
     if not glfw.init():
         sys.exit()
 
-    width = 900
-    height = 900
+    width = 800
+    height = 800
 
-
-    window = glfw.create_window(width, height, "Simulador de Avión", None, None)
+    window = glfw.create_window(width, height, 'Simulador de avión 3D', None, None)
 
     if not window:
         glfw.terminate()
         sys.exit()
 
     glfw.make_context_current(window)
-    
-    
-    #definimos el controlador de nuestro modulo
+
+    # Creamos el controlador
     controlador = Controller()
 
     # Connecting the callback function 'on_key' to handle keyboard events
     glfw.set_key_callback(window, controlador.on_key)
 
-    # Assembling the shader program (pipeline) with both shaders
-    pipeline = es.SimpleModelViewProjectionShaderProgram()
+    # Creating shader programs for textures and for colores
     pipelineTexture = es.SimpleTextureModelViewProjectionShaderProgram()
-    
+    pipeline = es.SimpleModelViewProjectionShaderProgram()
+    lighting_pipeline = ls.SimpleGouraudShaderProgram()#ls.SimplePhongShaderProgram()
+
     # Telling OpenGL to use our shader program
     glUseProgram(pipeline.shaderProgram)
 
     # Setting up the clear screen color
-    glClearColor(0.2, 0.2, 0.85, 1.0)
+    glClearColor(0, 0.6, 1, 1.0) # Usamos un color cielo
 
     # As we work in 3D, we need to check which part is in front,
     # and which one is at the back
     glEnable(GL_DEPTH_TEST)
 
-
-    # Creamos nuestros objetos 
-    avion = plane()
-    cielo = cielo()
-    pastito = pasto()
-    nubes = createNubes()
-    montanas = createMontanas()
-    panel = panel_de_vuelo()
-    perillas = perilla_velocimetro()
-    indicadores = indicadores()
-    botones = botones()
-    youdied = you_died()
-    
-    # definimos un tiempo para el movimiento de objetos
-    
-    t0 = 0
-    
-    # Le entregamos el modelo que trabajara el controlador y el panel.
-    controlador.set_model(avion)
-    controlador.set_panel(panel)
-    # Our shapes here are always fully painted
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
+    # Creamos los objetos
+    
+    #escenario
+    axis = Axis()
+    montanas = createMontanas()
+    holes = create_holes()
+    pastito = pasto()
+    
+
+    #Avion
+    avion = plane()
+    ruedas = ruedas()
+    panel = panel_de_vuelo()
+    perillas = perilla_velocimetro()
+    botones = botones()
+    indicadores = indicadores()
+
+    # Le entregamos el modelo que trabajara el controlador
+    controlador.set_model(avion)
+    controlador.set_adjuntos(panel, perillas, botones, indicadores, ruedas)
+
     # Creamos la camara y la proyección
-    projection = tr.ortho(0, 10, 0, 10, 0.1, 100)
-    view = tr.lookAt(
-        np.array([10, 10, 5]),  # Donde está parada la cámara
-        np.array([0, 0, 0]),  # Donde estoy mirando
-        np.array([0, 0, 1])  # Cual es vector UP
-    )
+    #projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)
+    projection = tr.perspective(60, float(width)/float(height), 0.1, 100)
+
+    # inicializamos algunas variables que usaremos 
+    t0 = glfw.get_time()
+    at = np.zeros(3)
+    z0 = 0.
+    y0 = 0.
+    phi = np.pi * 0.25
+    theta = 0
+    up = np.array((0., 0., 1.))
+    # Donde estará la cámara:
+    viewPos = np.zeros(3)
+    viewPos[0] = avion.pos_x - 0.8 # Definimos un x inicial más atrás que el avión.
+    viewPos[2] = -0.8 #Definimos una vista desde la altura, un z más alto.
 
     while not glfw.window_should_close(window):
-        
+
+        # Using GLFW to check for input events
+        glfw.poll_events()
+
+        # Clearing the screen in both, color and depth
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
         # Calculamos el dt
         v = avion.velocidad
         ti = glfw.get_time()
         dt = (ti - t0) * (v * 0.01)
         t0 = ti
-        
-        # Using GLFW to check for input events
-        glfw.poll_events()
-        
 
-        # Clearing the screen in both, color and depth
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        # Variables que nos servirán para el calculo de los ángulos de la cámara.
+        y1 = avion.pos_y
+        z1 = avion.pos_z
 
-        # Agregamos lo que ocurrirá en la pantalla en orden
+        dz = (z1 - z0) * 0.5
+        z0 = z1
+
+        dy = y1 - y0
+        y0 = y1
+
+        # Actualizamos los angulos
+        phi, theta = controlador.update_angle(dy, dz)
         
-        if avion.caida_libre:
-            avion.caidaLibre()
-            simulador_elevar_descender()
-            if avion.youdied:
-                glUseProgram(pipelineTexture.shaderProgram)
-                youdied.draw(pipelineTexture)
-                glUseProgram(pipeline.shaderProgram)
-                
-        elif avion.despegar:
-            avion.despegar_aterrizar(pastito)
-            simulador_elevar_descender()
-            
-        elif avion.aterrizar:
-            avion.despegar_aterrizar(pastito)
-            simulador_elevar_descender()
-                
-        elif avion.moverAvion:
-                
-                simulador_en_mov()
-                if 28 < avion.cabeceo_angulo < 35 or -35 < avion.cabeceo_angulo < -28:
-                    print ("CUIDADO. PERDIENDO ESTABILIDAD")
-                if 110 < avion.velocidad < 145:
-                    print ("CUIDADO. REDUZCA VELOCIDAD; AVIÓN PUEDE SUFRIR DAÑOS")
-                if avion.velocidad < 50 and avion.en_aire:
-                    print ("PERDIENDO CONTROL")
+        # REMAINDER:
+        #  x = cos(phi) * sin(theta)
+        #  y = sin(phi) * sin(theta)
+        #  z = cos(theta)
+        at = np.array([
+                np.cos(phi) * np.sin(theta),    # x
+                np.sin(phi) * np.sin(theta),    # y
+                np.cos(theta)                   # z
+            ])
+
+        phi_side = phi + np.pi * 0.5 # Simple correction
+
+        # We have to redefine our at and forward vectors
+        # Now considering our character's position.
+        new_at = at + viewPos
+        forward = new_at - viewPos
+
+        # Move character according to the given parameters
+        controlador.move(window, viewPos, forward, dt)
         
-    
-        elif avion.velocidad == 0:
-            avion.velocidad_avion()
-            simulador_quieto()
-            
-            
-        else:
-            avion.velocidad_avion()
-            simulador_en_mov()
-            
-        
-        # Once the render is done, buffers are swapped, showing only the complete scene.
+        # Definimos la configuración de la cámara.
+        view = tr.lookAt(
+            viewPos,            # Eye
+            at + viewPos,       # At
+            up                  # Up
+        )
+
+        # Cambiamos el pipeline para la luz:
+        glUseProgram(lighting_pipeline.shaderProgram)
+
+        # White light in all components: ambient, diffuse and specular.
+        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "La"), 1, 1, 1)
+        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "Ls"), 0.3, 0.3, 0.3)
+
+         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
+        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "Ka"), 0.5, 0.5, 0.5)
+        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "Kd"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "Ks"), 0.3, 0.3, 0.3)
+
+        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "lightPosition"), 0, 0, 1)
+        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "viewPosition"), -5, 0, 3)
+        glUniform1ui(glGetUniformLocation(lighting_pipeline.shaderProgram, "shininess"), 100)
+
+        glUniform1f(glGetUniformLocation(lighting_pipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(lighting_pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(lighting_pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+         # Dibujamos
+        axis.draw(pipeline, projection, view)
+        simulador_en_mov()
+
+        # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
         glfw.swap_buffers(window)
-            
-        
 
-    
     glfw.terminate()
-        
