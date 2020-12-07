@@ -20,7 +20,7 @@ from Controlador import *
 from modelos3D import *
 
 def simulador_en_mov():
-    print(avion.velocidad)
+    
     montanas.DrawMoving_x(pipeline, projection, view, dt) #si usamos ighting_pipeline -> se ve horrible
     pastito.draw(pipeline, projection, view)
     avion.draw(pipeline, projection, view, ruedas)
