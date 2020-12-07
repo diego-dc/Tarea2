@@ -82,6 +82,8 @@ class Controller():
     
         elif (action == glfw.PRESS or action == glfw.REPEAT):
             if( key == glfw.KEY_UP):
+                if self.model.velocidad < 30:
+                    print("Velocidad muy baja")
                 if self.model.pos_z >= -0.95 and self.ruedas.desplegar == False:
                     self.model.cabeceo_up = True
                     self.model.moverAvion = True

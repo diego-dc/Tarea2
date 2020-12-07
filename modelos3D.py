@@ -318,7 +318,7 @@ class plane(object):
             if self.inclinacion_izq and np.radians(self.angulo_inclinacion) > -1.1:
                 self.angulo_inclinacion -= 0.3
                 self.inclinacion_lateral.transform = tr.rotationX(np.radians(self.angulo_inclinacion))
-            if self.cabeceo_up:
+            if self.cabeceo_up and self.velocidad > 30:
                 self.cabeceo_angulo -= 0.3
                 self.cabeceo_nodo.transform = tr.rotationY(np.radians(self.cabeceo_angulo))
                 if np.radians(self.cabeceo_angulo) < -0.85:
@@ -390,7 +390,7 @@ class plane(object):
 
         # Acá lo que pasa en vuelo normal
         # Si se mueve hacia arriba
-        elif self.move_up:
+        elif self.move_up and self.velocidad > 30:
             if self.move_left and self.pos_y <= 1: #verificamos si se mueve a la izq.
                 self.pos_y += -(0.001 * (self.angulo_inclinacion * 0.03))
             elif self.move_right and self.pos_y >= -1: #verificamos si se mueve a la der.
@@ -425,20 +425,9 @@ class plane(object):
         self.velocidad_avion()
     
     def velocidad_avion(self):
-        # Si el avion eterriza, comienza a frenar.
-        if self.pos_z == -0.95 and self.velocidad > 40:
-            self.pos_x -= 0.00000125
-            self.velocidad -= 0.00625
-            self.update(self.pos_x, self.pos_y, self.pos_z)
-        # El avion frena por el aire en la altura.
-        if self.pos_z > -0.5 and self.acelerar == False:
-            self.pos_x -= 0.00000125
-            self.velocidad -= 0.00625
-            self.update(self.pos_x, self.pos_y, self.pos_z)
-            if self.velocidad < 30:
-                self.caida_libre = True
+        
         # verifica si acelera
-        elif self.acelerar and self.prender_apagar_motor:
+        if self.acelerar and self.prender_apagar_motor:
             self.pos_x += 0.00002
             self.velocidad += 0.1
             self.update(self.pos_x, self.pos_y, self.pos_z)
@@ -450,6 +439,18 @@ class plane(object):
             self.velocidad -= 0.1
             self.update(self.pos_x, self.pos_y, self.pos_z)
             if self.velocidad < 30 and self.pos_z != -0.95:
+                self.caida_libre = True
+        # Si el avion eterriza, comienza a frenar.
+        elif self.pos_z == -0.95 and self.velocidad > 30:
+            self.pos_x -= 0.00000125
+            self.velocidad -= 0.00625
+            self.update(self.pos_x, self.pos_y, self.pos_z)
+        # El avion frena por el aire en la altura.
+        elif self.pos_z > -0.5 and self.acelerar == False:
+            self.pos_x -= 0.00000125
+            self.velocidad -= 0.00625
+            self.update(self.pos_x, self.pos_y, self.pos_z)
+            if self.velocidad < 30:
                 self.caida_libre = True
            
 

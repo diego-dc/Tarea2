@@ -25,7 +25,7 @@ def simulador_en_mov():
     avion.draw(lighting_pipeline, projection, view, ruedas)
     ruedas.draw(lighting_pipeline, projection, view, avion)
 
-    if avion.velocidad != 0:
+    if avion.velocidad > 0:
         montanas.crear_montanas()
         holes.crear_holes(lighting_pipeline, projection, view, dt)
 
