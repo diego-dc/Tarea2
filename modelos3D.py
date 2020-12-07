@@ -16,20 +16,6 @@ import basic_shapes as bs
 
 
 # Acá crearemos todos nuestros modelos como clases para despues utilizarlos en el modulo principal
-
-
-
-class cielo(object):
-    def __init__(self):
-        
-        gpuCieloAzul = es.toGPUShape(bs.createSky(-1,0.5))
-        
-        cielo1 = sg.SceneGraphNode("cielo")
-        cielo1.childs += [gpuCieloAzul]
-        
-        self.model = cielo1
-    def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
         
         
 class pasto(object):
@@ -342,15 +328,15 @@ class plane(object):
     # También cuando se acelera o se frena  
     def Move_plane(self, ruedas):
         if self.move_up or self.move_down:
-            print(self.pos_z)
             if self.pos_z <= -0.95 and ruedas.desplegar:
-                print("xd nosemueve")
                 self.move_down = False
                 self.move_up = False
                 self.moverAvion = False
                 self.cabeceo_angulo = 0
                 self.cabeceo_nodo.transform = tr.rotationZ(np.radians(0))
                 self.pos_z = -0.95
+            elif self.pos_z == -0.95 and ruedas.desplegar == False:
+                self.youdied = True
             self.Cabeceo()
             self.posAvion()
         elif self.acelerar or self.frenar:
@@ -373,12 +359,13 @@ class plane(object):
             self.Cabeceo()
             self.posAvion()
         else:
+            self.posAvion()
             self.Cabeceo()
         
     # La función que permitirá que el avión se mueva actualizando el movimiento del avión     
     def posAvion(self):
         # Acá lo que pasa si va en caida libre
-        if self.caida_libre:
+        if self.caida_libre and self.pos_z > -0.95:
             self.pos_z -= 0.005
             self.update(self.pos_x, self.pos_y, self.pos_z)
 
@@ -421,13 +408,13 @@ class plane(object):
     def velocidad_avion(self):
         # Si el avion eterriza, comienza a frenar.
         if self.pos_z == -0.95 and self.velocidad > 40:
-            self.pos_x -= 0.0000025
-            self.velocidad -= 0.0125
+            self.pos_x -= 0.00000125
+            self.velocidad -= 0.00625
             self.update(self.pos_x, self.pos_y, self.pos_z)
         # El avion frena por el aire en la altura.
         if self.pos_z > -0.5 and self.acelerar == False:
-            self.pos_x -= 0.0000025
-            self.velocidad -= 0.0125
+            self.pos_x -= 0.00000125
+            self.velocidad -= 0.00625
             self.update(self.pos_x, self.pos_y, self.pos_z)
             if self.velocidad < 30:
                 self.caida_libre = True
@@ -452,7 +439,6 @@ class plane(object):
             ruedas.desplegar = False
             self.move_up = False
             if self.pos_z > -0.95:
-                self.move_down = True
                 self.Move_plane(ruedas)
             if self.pos_z <= -0.95:
                 self.youdied = True

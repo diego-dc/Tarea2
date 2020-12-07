@@ -100,38 +100,34 @@ class Controller():
                     print("No se puede maniobrar el avión en tierra")
 
             elif (key == glfw.KEY_RIGHT):
-                if self.model.en_aire:
-                    if self.model.pos_y > -1:
-                        print("Girando Der.")
-                        self.model.inclinacion_der = True
-                        self.model.moverAvion = True
-                        if self.model.angulo_inclinacion >= 0:
-                            self.model.move_right = True
+                if self.model.pos_y > -1:
+                    print("Girando Der.")
+                    self.model.inclinacion_der = True
+                    self.model.moverAvion = True
+                    if self.model.angulo_inclinacion >= 0:
+                        self.model.move_right = True
                 else:
                     print("No se puede maniobrar el avión en tierra")
 
             elif (key == glfw.KEY_LEFT):
-                if self.model.en_aire:
-                    if self.model.pos_y < 1:
-                        print("Girando Izq.")
-                        self.model.inclinacion_izq = True
-                        self.moverAvion = True
-                        if self.model.angulo_inclinacion <= 0:
-                            self.model.move_left = True
+                if self.model.pos_y < 1:
+                    print("Girando Izq.")
+                    self.model.inclinacion_izq = True
+                    self.moverAvion = True
+                    if self.model.angulo_inclinacion <= 0:
+                        self.model.move_left = True
                 else:
                     print("No se puede maniobrar el avión en tierra")
                     
             elif (key == glfw.KEY_W):
                 self.w = True
                 self.model.acelerar = True
-                if self.model.en_aire:
-                    self.model.moverAvion = True
+                self.model.moverAvion = True
                 
             elif (key == glfw.KEY_S):
                 self.s = True
                 self.model.frenar = True
-                if self.model.en_aire:
-                    self.model.moverAvion = True
+                self.model.moverAvion = True
                     
             # NOTAR QUE:
             # FALSE -> APAGADO.
@@ -162,20 +158,15 @@ class Controller():
                     
                 
                 
-                
             elif (key == glfw.KEY_K):
                 self.model.prender_apagar_motor = not self.model.prender_apagar_motor
                 if self.model.prender_apagar_motor:
                     print("Prendiendo Motor")
                     self.botones.mover_b2 = True
-                    self.perillas.prender = True
                 elif self.model.prender_apagar_motor == False:
                     print("Apagando Motor")
                     self.botones.mover_b2 = False
-                    self.perillas.prender = False
-                    
-                
-                    
+                     
             
             elif (key == glfw.KEY_L):
                 self.indicadores.prender = not self.indicadores.prender
@@ -189,8 +180,7 @@ class Controller():
 
             elif (key == glfw.KEY_P):
                 self.panel.mostrar_panel = not self.panel.mostrar_panel
-                
-                
+                  
             
             elif (key == glfw.KEY_SPACE):
                 if self.ruedas.desplegar:
@@ -286,18 +276,18 @@ class Controller():
                 self.botones.pos_x -= 0.0001
 
         elif self.model.pos_z > -0.5 and self.model.acelerar == False:
-            viewPos -= forward * 0.0000125
-            self.panel.pos_x -=  0.0000125
-            self.perillas.pos_x -= 0.0000125
-            self.indicadores.pos_x -= 0.0000125
-            self.botones.pos_x -= 0.0000125
+            viewPos -= forward * 0.00000625
+            self.panel.pos_x -=  0.00000625
+            self.perillas.pos_x -= 0.00000625
+            self.indicadores.pos_x -= 0.00000625
+            self.botones.pos_x -= 0.00000625
 
         elif self.model.pos_z == -0.95 and self.model.velocidad > 40:
-            viewPos -= forward * 0.0000125
-            self.panel.pos_x -=  0.0000125
-            self.perillas.pos_x -= 0.0000125
-            self.indicadores.pos_x -= 0.0000125
-            self.botones.pos_x -= 0.0000125
+            viewPos -= forward * 0.00000625
+            self.panel.pos_x -=  0.00000625
+            self.perillas.pos_x -= 0.00000625
+            self.indicadores.pos_x -= 0.00000625
+            self.botones.pos_x -= 0.00000625
             
 
         else:

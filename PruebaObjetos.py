@@ -20,10 +20,9 @@ from Controlador import *
 from modelos3D import *
 
 def simulador_en_mov():
-
+    print(avion.velocidad)
     montanas.DrawMoving_x(pipeline, projection, view, dt)
     pastito.draw(pipeline, projection, view)
-    avion.en_aire = True
     avion.draw(pipeline, projection, view, ruedas)
     ruedas.draw(pipeline, projection, view, avion)
 
@@ -36,6 +35,9 @@ def simulador_en_mov():
         perillas.draw(pipeline, projection, view, avion)
         indicadores.draw(pipeline, projection, view, avion)
         botones.presionar_botones(pipeline, projection, view)
+    
+    if avion.youdied:
+        pass
         
     
 if __name__ == '__main__':
