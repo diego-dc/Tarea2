@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Oct  2 19:10:48 2020
 
 @author: diegc
 """

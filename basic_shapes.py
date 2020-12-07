@@ -6,9 +6,7 @@ vertices and indices for simple shapes
 """
 import numpy as np
 import easy_shaders as es
-from PruebaObjetos import *
 
-from PruebaObjetos import *
 from collections import namedtuple
 
 
