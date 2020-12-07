@@ -558,3 +558,26 @@ def createColorCircle(N, R, r, g, b):
     indices += [0, N, 1]
 
     return Shape(vertices, indices)
+
+def createColorNormalsCircle(N, R, r, g, b):
+
+    # First vertex at the center
+    vertices = [0, 0, 0, r, g, b, 0, 0, 1]
+    indices = []
+
+    dtheta = 2 * np.pi / N
+
+    for i in range(N):
+        theta = i * dtheta
+
+        vertices += [
+            # vertex coordinates
+            R * np.cos(theta), R * np.sin(theta), 0, r, g, b, 0, 0, 1]
+
+        # A triangle is created using the center, this and the next vertex
+        indices += [0, i, i+1]
+
+    # The final triangle connects back to the second vertex
+    indices += [0, N, 1]
+
+    return Shape(vertices, indices)

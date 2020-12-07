@@ -18,6 +18,7 @@ class Controller():
         self.botones = None
         self.indicadores = None
         self.ruedas = None
+        self.axis = None
 
         self.position = np.zeros(3)
         self.old_pos = 0, 0
@@ -29,12 +30,13 @@ class Controller():
     def set_model(self, m):
         self.model = m
     
-    def set_adjuntos(self, panel, perillas, botones, indicadores, ruedas):
+    def set_adjuntos(self, panel, perillas, botones, indicadores, ruedas, axis):
         self.panel = panel
         self.perillas = perillas
         self.botones = botones 
         self.indicadores = indicadores
         self.ruedas = ruedas
+        self.axis = axis
 
     def update_angle(self, dy, dz):
 
@@ -81,17 +83,15 @@ class Controller():
         elif (action == glfw.PRESS or action == glfw.REPEAT):
             if( key == glfw.KEY_UP):
                 if self.model.pos_z >= -0.95 and self.ruedas.desplegar == False:
-                    print("cabeceo Arriba")
                     self.model.cabeceo_up = True
                     self.model.moverAvion = True
                     if self.model.cabeceo_angulo <= 0:
                         self.model.move_up = True
                 else:
-                    print("No se puede maniobrar el avión en tierra")
+                    print("No se puede maniobrar el avión en tierra, ruedas aún desplegadas.")
                 
             elif (key == glfw.KEY_DOWN):
                 if self.model.pos_z > -0.95:
-                    print("Cabeceo Abajo")
                     self.model.cabeceo_down = True
                     self.model.moverAvion = True
                     if self.model.cabeceo_angulo >= 0:
@@ -101,23 +101,21 @@ class Controller():
 
             elif (key == glfw.KEY_RIGHT):
                 if self.model.pos_y > -1:
-                    print("Girando Der.")
                     self.model.inclinacion_der = True
                     self.model.moverAvion = True
                     if self.model.angulo_inclinacion >= 0:
                         self.model.move_right = True
                 else:
-                    print("No se puede maniobrar el avión en tierra")
+                    print("No se puede maniobrar el avión fuera de los limites")
 
             elif (key == glfw.KEY_LEFT):
                 if self.model.pos_y < 1:
-                    print("Girando Izq.")
                     self.model.inclinacion_izq = True
                     self.moverAvion = True
                     if self.model.angulo_inclinacion <= 0:
                         self.model.move_left = True
                 else:
-                    print("No se puede maniobrar el avión en tierra")
+                    print("No se puede maniobrar el avión fuera de los limites")
                     
             elif (key == glfw.KEY_W):
                 self.w = True
@@ -180,6 +178,17 @@ class Controller():
 
             elif (key == glfw.KEY_P):
                 self.panel.mostrar_panel = not self.panel.mostrar_panel
+                if self.panel.mostrar_panel:
+                    print("Mostrando Panel de Control")
+                else:
+                    print("Ocultando Panel de Control")
+
+            elif (key == glfw.KEY_O):
+                self.axis.mostrar = not self.axis.mostrar
+                if self.axis.mostrar:
+                    print("Mostrando Orientación")
+                else:
+                    print("Ocultando Orientación")
                   
             
             elif (key == glfw.KEY_SPACE):
@@ -206,7 +215,7 @@ class Controller():
 
     #Función que moverá la cámara junto al movimiento del avión.
     def move(self, window, viewPos, forward, dt):
-        if self.model.move_right:
+        if self.model.move_right and self.model.pos_y >= -1:
             if self.model.move_up:
                 viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
                 self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))
@@ -219,7 +228,7 @@ class Controller():
             self.panel.pos_y -= (0.001 * (self.model.angulo_inclinacion * 0.03))
             self.perillas.pos_y, self.botones.pos_y, self.indicadores.pos_y = viewPos[1], viewPos[1], viewPos[1]
 
-        elif self.model.move_left:
+        elif self.model.move_left and self.model.pos_y <= 1:
             if self.model.move_up:
                 viewPos[2] += -(0.001 * (self.model.cabeceo_angulo * 0.03))
                 self.panel.pos_z += -(0.001 * (self.model.cabeceo_angulo * 0.03))

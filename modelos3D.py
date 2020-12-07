@@ -21,7 +21,7 @@ import basic_shapes as bs
 class pasto(object):
     def __init__(self):
         
-        gpuPastoVerde = es.toGPUShape(bs.createColorCube(0,0.8,0.1))
+        gpuPastoVerde = es.toGPUShape(bs.createColorNormalsCube(0,0.8,0.1))
         
         pastito = sg.SceneGraphNode("pastito")
         pastito.transform = tr.scale(5, 10, 0.01)
@@ -35,6 +35,26 @@ class pasto(object):
         
     def draw(self, pipeline, projection, view):
         self.model.transform = tr.translate(0, 0, -1)
+
+        # White light in all components: ambient, diffuse and specular.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "La"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ls"), 0.4, 0.4, 0.4)
+
+         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ka"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.9, 0.9, 0.9)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.2, 0.2, 0.2)
+
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "lightPosition"), 0, 0, 3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "viewPosition"), 0, 0, 1)
+        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 10)
+
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
@@ -44,9 +64,9 @@ class pasto(object):
 class plane(object):
     def __init__(self):
         
-        gpuCuboBlanco = es.toGPUShape(bs.createColorCube(1,1,1))
-        gpuPiramideBlanco = es.toGPUShape(bs.createColorPyramid(0.5,0.5,0.5))
-        gpuCuboCeleste = es.toGPUShape(bs.createColorCube(0.2,0.8,0.9))
+        gpuCuboBlanco = es.toGPUShape(bs.createColorNormalsCube(1,1,1))
+        gpuPiramideBlanco = es.toGPUShape(bs.createColorNormalPyramid(0.5,0.5,0.5))
+        gpuCuboCeleste = es.toGPUShape(bs.createColorNormalsCube(0.2,0.8,0.9))
     
         #la idea es realizar una avioneta
         #definimos primero las partes que necesitaran tamaños distintos
@@ -235,7 +255,7 @@ class plane(object):
         self.camara3 = False
         
         self.caida_libre = False
-        self.youdied = False
+        self.you_died = False
         
         
     # Acá definimos funciones que permitirán la manipulcaión del avión
@@ -333,8 +353,9 @@ class plane(object):
                 self.cabeceo_angulo = 0
                 self.cabeceo_nodo.transform = tr.rotationZ(np.radians(0))
                 self.pos_z = -0.95
-            elif self.pos_z == -0.95 and ruedas.desplegar == False:
-                self.youdied = True
+            elif self.pos_z < -0.95 and ruedas.desplegar == False:
+                if self.velocidad != 0:
+                    self.you_died = True
             self.Cabeceo()
             self.posAvion()
         elif self.acelerar or self.frenar:
@@ -438,22 +459,41 @@ class plane(object):
             self.move_up = False
             if self.pos_z > -0.95:
                 self.Move_plane(ruedas)
-            if self.pos_z <= -0.95:
-                self.youdied = True
+            elif self.pos_z <= -0.95:
+                self.you_died = True
     
     def draw(self, pipeline, projection, view, ruedas):
         self.Move_plane(ruedas)
         self.caidaLibre(ruedas)
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
+        
+        # White light in all components: ambient, diffuse and specular.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "La"), 0.7, 0.7, 0.7)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ls"), 0.4, 0.4, 0.4)
+
+         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ka"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.3, 0.3, 0.3)
+
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "lightPosition"), -1, 0, 2)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "viewPosition"), 0, 0, 1)
+        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 10)
+
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
 
 class ruedas(object):
     def __init__(self):
-        gpuCuboGris = es.toGPUShape(bs.createColorCube(0.5, 0.5, 0.5))
-        gpuCuboNegro = es.toGPUShape(bs.createColorCube(0.1, 0.1, 0.1))
+        gpuCuboGris = es.toGPUShape(bs.createColorNormalsCube(0.5, 0.5, 0.5))
+        gpuCuboNegro = es.toGPUShape(bs.createColorNormalsCube(0.1, 0.1, 0.1))
 
         soportes = sg.SceneGraphNode("soportes")
         soportes.transform = tr.scale(0.2, 0.2, 0.4)
@@ -537,14 +577,30 @@ class ruedas(object):
             self.trasladar.transform = tr.translate(0, 0, self.bajar_subir_ruedas)
             if self.bajar_subir_ruedas >= 0:
                 self.mostrar = False
-        
-        
-
     
     def draw(self, pipeline, projection, view, objeto):
         self.set_main(objeto)
         self.desplegar_ruedas()
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        # White light in all components: ambient, diffuse and specular.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "La"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ls"), 0.4, 0.4, 0.4)
+
+         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ka"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.2, 0.2, 0.2)
+
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "lightPosition"), -1, 0, 2)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "viewPosition"), 0, 0, 1)
+        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 10)
+
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         if self.mostrar:
@@ -557,7 +613,7 @@ import random
 class holes(object):
 
     def __init__(self):
-        gpuCuboBlanco = es.toGPUShape(bs.createColorCube(1,1,1))
+        gpuCuboBlanco = es.toGPUShape(bs.createColorNormalsCube(1,1,1))
 
         prisma = sg.SceneGraphNode("prisma")
         prisma.transform = tr.scale(0.1, 0.1, 0.6)
@@ -595,13 +651,30 @@ class holes(object):
         self.pos_y = random.choice([0.9, 0.8, 0.7, 0.6, 0.3, 0.1, 0, -0.2, -0.3, -0.5, -0.7, -0.8, 0.9])
         self.pos_z = random.choice([1, 0.8, 0.7, 0.6, 0.5, 0.3,0.2, 0.1, 0 , -0.1])
 
-
-
     def update_x(self, dt):
         self.pos_x -= dt
 
     def draw(self, pipeline, projection, view):
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        # White light in all components: ambient, diffuse and specular.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "La"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ls"), 0.4, 0.4, 0.4)
+
+         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ka"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.9, 0.9, 0.9)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.2, 0.2, 0.2)
+
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "lightPosition"), -2, 0, 2)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "viewPosition"), 0, 0, 1)
+        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 10)
+
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
@@ -614,7 +687,7 @@ class create_holes(object):
     
     def crear_holes(self, pipeline, projection, view, dt):
         hole = holes()
-        if (random.random() < 0.0004):
+        if (random.random() < 0.0006):
             self.creador_holes.append(hole)
         self.draw(pipeline, projection, view, dt)
         self.clean()
@@ -640,19 +713,18 @@ class Axis(object):
 
     def __init__(self):
         self.model = es.toGPUShape(bs.createAxis(1))
-        self.show = True
+        self.mostrar = False
 
     def toggle(self):
         self.show = not self.show
 
     def draw(self, pipeline, projection, view):
-        if not self.show:
-            return
         glUseProgram(pipeline.shaderProgram)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'model'), 1, GL_TRUE, tr.identity())
-        pipeline.drawShape(self.model, GL_LINES)
+        if self.mostrar:
+            pipeline.drawShape(self.model, GL_LINES)
 
 
 class nubes(object):
@@ -768,7 +840,7 @@ class createNubes(object):
 # Creamos el objeto de las montañas con nieve.
 class mountain(object):
     def __init__(self):
-        gpuTrianguloCafe = es.toGPUShape(bs.createColorPyramid(0.7,0.4,0))
+        gpuTrianguloCafe = es.toGPUShape(bs.createColorNormalPyramid(0.7,0.4,0))
         #gpuTrianguloBlanco = es.toGPUShape(bs.createColorTriangle(1,1,1))
         
         # Creamos la montaña en 3D, será una piramide café
@@ -813,6 +885,25 @@ class mountain(object):
         
     def draw(self, pipeline, projection, view):
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        # White light in all components: ambient, diffuse and specular.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "La"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ls"), 0.4, 0.4, 0.4)
+
+         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ka"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.9, 0.9, 0.9)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.2, 0.2, 0.2)
+
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "lightPosition"), -1, 0, 1)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "viewPosition"), 0, 0, 1)
+        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 10)
+
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
@@ -881,15 +972,15 @@ class createMontanas(object):
 
 class panel_de_vuelo(object):
     def __init__(self):
-        gpuWhiteCircle = es.toGPUShape(bs.createColorCircle(30, 1, 1, 1, 1))
-        gpuCuadradoverde = es.toGPUShape(bs.createColorCube(0,1,0))
-        gpuCuadradoAzul = es.toGPUShape(bs.createColorCube(0,0,1))
-        gpuCuadradoAmarillo = es.toGPUShape(bs.createColorCube(0.9,1,0))
-        gpuCuadradoRojo = es.toGPUShape(bs.createColorCube(1,0,0))
-        gpuCuadradoBlanco = es.toGPUShape(bs.createColorCube(1,1,1))
-        gpuMesaDeControl = es.toGPUShape(bs.createColorCube(0.8, 0.8, 0.8))
-        gpuCuadradoGris = es.toGPUShape(bs.createColorCube(0.6,0.6,0.7))
-        gpuCuadradoNegro = es.toGPUShape(bs.createColorCube(0.2,0.2,0.2))
+        gpuWhiteCircle = es.toGPUShape(bs.createColorNormalsCircle(30, 1, 1, 1, 1))
+        gpuCuadradoverde = es.toGPUShape(bs.createColorNormalsCube(0,1,0))
+        gpuCuadradoAzul = es.toGPUShape(bs.createColorNormalsCube(0,0,1))
+        gpuCuadradoAmarillo = es.toGPUShape(bs.createColorNormalsCube(0.9,1,0))
+        gpuCuadradoRojo = es.toGPUShape(bs.createColorNormalsCube(1,0,0))
+        gpuCuadradoBlanco = es.toGPUShape(bs.createColorNormalsCube(1,1,1))
+        gpuMesaDeControl = es.toGPUShape(bs.createColorNormalsCube(0.8, 0.8, 0.8))
+        gpuCuadradoGris = es.toGPUShape(bs.createColorNormalsCube(0.6,0.6,0.7))
+        gpuCuadradoNegro = es.toGPUShape(bs.createColorNormalsCube(0.2,0.2,0.2))
         
         # Creamos el fondo de lo que sera la mesa de control
         Mesa_control = sg.SceneGraphNode("Mesa_control")
@@ -1225,6 +1316,25 @@ class panel_de_vuelo(object):
     
     def draw(self, pipeline, projection, view):
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        # White light in all components: ambient, diffuse and specular.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "La"), 0.9, 0.9, 0.9)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ls"), 0.4, 0.4, 0.4)
+
+         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ka"), 0.4, 0.4, 0.4)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.3, 0.3, 0.3)
+
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "lightPosition"), -3.5, 0, 0)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "viewPosition"), 0, 0, 1)
+        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 10)
+
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
@@ -1234,7 +1344,7 @@ class perilla_velocimetro(object):
     
     def __init__(self):
         
-        gpuTrianguloNegro = es.toGPUShape(bs.createColorPyramid(0.1,0.1,0.1))
+        gpuTrianguloNegro = es.toGPUShape(bs.createColorNormalPyramid(0.1,0.1,0.1))
     
         perilla_forma = sg.SceneGraphNode("perilla_forma")
         perilla_forma.transform = tr.scale(0.1, 0.1, 1)
@@ -1296,6 +1406,25 @@ class perilla_velocimetro(object):
         self.perilla1(objeto)
         self.perilla2(objeto)
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        # White light in all components: ambient, diffuse and specular.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "La"), 0.9, 0.9, 0.9)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ls"), 0.4, 0.4, 0.4)
+
+         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ka"), 0.5, 0.5, 0.5)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.5, 0.5, 0.5)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.5, 0.5, 0.5)
+
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "lightPosition"), -2, 0, 1.5)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "viewPosition"), 0, 0, 1)
+        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 100)
+
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
@@ -1361,7 +1490,7 @@ class perilla_velocimetro(object):
         
 class indicadores(object):
     def __init__(self):
-        gpuCuadradoRojo = es.toGPUShape(bs.createColorCube(1,0,0))
+        gpuCuadradoRojo = es.toGPUShape(bs.createColorNormalsCube(1,0,0))
         
         indicador_forma = sg.SceneGraphNode("indicador_forma")
         indicador_forma.transform = tr.scale(1, 0.8, 0.7)
@@ -1429,6 +1558,25 @@ class indicadores(object):
     def draw(self, pipeline, projection, view, objeto):
         self.indicadores_accion(objeto)
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        # White light in all components: ambient, diffuse and specular.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "La"), 0.9, 0.9, 0.9)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ls"), 0.4, 0.4, 0.4)
+
+         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ka"), 0.5, 0.5, 0.5)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.5, 0.5, 0.5)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.5, 0.5, 0.5)
+
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "lightPosition"), -2, 0, 1.5)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "viewPosition"), 0, 0, 1)
+        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 100)
+
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)
@@ -1451,18 +1599,33 @@ class you_died(object):
         fondo_rojo = sg.SceneGraphNode("fondo_rojo")
         fondo_rojo.transform = tr.uniformScale(2)
         fondo_rojo.childs += [gpuCuadradoRojo]
+
+        girar = sg.SceneGraphNode("girar")
+        girar.transform = tr.rotationZ(np.radians(270))
+        girar.childs += [fondo_rojo]
+
+        girar2 = sg.SceneGraphNode("girar2")
+        girar2.transform = tr.rotationY(np.radians(-90))
+        girar2.childs += [girar]
+
+        girar3 = sg.SceneGraphNode("girar3")
+        girar3.transform = tr.rotationY(np.radians(1))
+        girar3.childs += [girar2]
         
-        self.model = fondo_rojo
+        self.model = girar3
         
         
-    def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
+    def draw(self, pipeline, projection, view, x, y, z):
+        self.model.transform = tr.translate(x, y, z)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
+        sg.drawSceneGraphNode(self.model, pipeline)
         
 class botones(object):
     def __init__(self):
-        gpuCuadradoGris = es.toGPUShape(bs.createColorCube(0.6,0.6,0.7))
-        gpuCuadradoRojo = es.toGPUShape(bs.createColorCube(1,0,0))
-        gpuCuadradoNegro = es.toGPUShape(bs.createColorCube(0.2,0.2,0.3))
+        gpuCuadradoGris = es.toGPUShape(bs.createColorNormalsCube(0.6,0.6,0.7))
+        gpuCuadradoRojo = es.toGPUShape(bs.createColorNormalsCube(1,0,0))
+        gpuCuadradoNegro = es.toGPUShape(bs.createColorNormalsCube(0.2,0.2,0.3))
         
         barra_tam = sg.SceneGraphNode("barra_tam")
         barra_tam.transform = tr.scale(0.15, 0.05, 0.05)
@@ -1547,6 +1710,25 @@ class botones(object):
         
     def draw(self, pipeline, projection, view):
         self.model.transform = tr.translate(self.pos_x, self.pos_y, self.pos_z)
+        # White light in all components: ambient, diffuse and specular.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "La"), 0.9, 0.9, 0.9)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ls"), 0.4, 0.4, 0.4)
+
+         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ka"), 0.5, 0.5, 0.5)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Kd"), 0.3, 0.3, 0.3)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "Ks"), 0.5, 0.5, 0.5)
+
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "lightPosition"), -2, 0, 1.5)
+        glUniform3f(glGetUniformLocation(pipeline.shaderProgram, "viewPosition"), 0, 0, 1)
+        glUniform1ui(glGetUniformLocation(pipeline.shaderProgram, "shininess"), 100)
+
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, self.model.transform)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'projection'), 1, GL_TRUE, projection)
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, 'view'), 1, GL_TRUE, view)
         sg.drawSceneGraphNode(self.model, pipeline)

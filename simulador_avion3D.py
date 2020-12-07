@@ -20,25 +20,26 @@ from Controlador import *
 from modelos3D import *
 
 def simulador_en_mov():
-    
-    montanas.DrawMoving_x(pipeline, projection, view, dt) #si usamos ighting_pipeline -> se ve horrible
-    pastito.draw(pipeline, projection, view)
-    avion.draw(pipeline, projection, view, ruedas)
-    ruedas.draw(pipeline, projection, view, avion)
+    pastito.draw(lighting_pipeline, projection, view)
+    montanas.DrawMoving_x(lighting_pipeline, projection, view, dt)
+    avion.draw(lighting_pipeline, projection, view, ruedas)
+    ruedas.draw(lighting_pipeline, projection, view, avion)
 
     if avion.velocidad != 0:
         montanas.crear_montanas()
-        holes.crear_holes(pipeline, projection, view, dt)
+        holes.crear_holes(lighting_pipeline, projection, view, dt)
 
     if panel.mostrar_panel:
-        glUseProgram(pipeline.shaderProgram)
-        panel.draw(pipeline,projection, view)
-        perillas.draw(pipeline, projection, view, avion)
-        indicadores.draw(pipeline, projection, view, avion)
-        botones.presionar_botones(pipeline, projection, view)
+        botones.presionar_botones(lighting_pipeline, projection, view)
+        panel.draw(lighting_pipeline,projection, view)
+        perillas.draw(lighting_pipeline, projection, view, avion)
+        indicadores.draw(lighting_pipeline, projection, view, avion)
+        
     
-    if avion.youdied:
-        pass
+    if avion.you_died:
+        # Usamos un shader de texturas sin luces
+        glUseProgram(pipelineTexture.shaderProgram)
+        youdied.draw(pipelineTexture, projection, view, 0, viewPos[1] ,viewPos[2])
         
     
 if __name__ == '__main__':
@@ -67,7 +68,7 @@ if __name__ == '__main__':
     # Creating shader programs for textures and for colores
     pipelineTexture = es.SimpleTextureModelViewProjectionShaderProgram()
     pipeline = es.SimpleModelViewProjectionShaderProgram()
-    lighting_pipeline = ls.SimpleGouraudShaderProgram()#ls.SimplePhongShaderProgram()
+    lighting_pipeline = ls.SimplePhongShaderProgram() #ls.SimpleGouraudShaderProgram()
 
     # Telling OpenGL to use our shader program
     glUseProgram(pipeline.shaderProgram)
@@ -97,10 +98,12 @@ if __name__ == '__main__':
     perillas = perilla_velocimetro()
     botones = botones()
     indicadores = indicadores()
+    
+    youdied = you_died()
 
-    # Le entregamos el modelo que trabajara el controlador
+    # Le entregamos el modelo que trabajara el controlador y todos los adjuntos
     controlador.set_model(avion)
-    controlador.set_adjuntos(panel, perillas, botones, indicadores, ruedas)
+    controlador.set_adjuntos(panel, perillas, botones, indicadores, ruedas, axis)
 
     # Creamos la camara y la proyección
     #projection = tr2.ortho(-1, 1, -1, 1, 0.1, 100)
@@ -173,29 +176,12 @@ if __name__ == '__main__':
             up                  # Up
         )
 
+        # Dibujamos
+        axis.draw(pipeline, projection, view)
+
         # Cambiamos el pipeline para la luz:
         glUseProgram(lighting_pipeline.shaderProgram)
 
-        # White light in all components: ambient, diffuse and specular.
-        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "La"), 1, 1, 1)
-        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "Ld"), 0.3, 0.3, 0.3)
-        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "Ls"), 0.3, 0.3, 0.3)
-
-         # Object is barely visible at only ambient. Bright white for diffuse and specular components.
-        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "Ka"), 0.5, 0.5, 0.5)
-        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "Kd"), 0.3, 0.3, 0.3)
-        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "Ks"), 0.3, 0.3, 0.3)
-
-        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "lightPosition"), 0, 0, 1)
-        glUniform3f(glGetUniformLocation(lighting_pipeline.shaderProgram, "viewPosition"), -5, 0, 3)
-        glUniform1ui(glGetUniformLocation(lighting_pipeline.shaderProgram, "shininess"), 100)
-
-        glUniform1f(glGetUniformLocation(lighting_pipeline.shaderProgram, "constantAttenuation"), 0.0001)
-        glUniform1f(glGetUniformLocation(lighting_pipeline.shaderProgram, "linearAttenuation"), 0.03)
-        glUniform1f(glGetUniformLocation(lighting_pipeline.shaderProgram, "quadraticAttenuation"), 0.01)
-
-         # Dibujamos
-        axis.draw(pipeline, projection, view)
         simulador_en_mov()
 
         # Once the drawing is rendered, buffers are swap so an uncomplete drawing is never seen.
