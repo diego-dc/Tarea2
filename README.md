@@ -5,6 +5,8 @@ Simulador de Avión 3D.
 
 El siguiente código pretende simular el vuelo de un avión usando OpenGL en 3D.
 
+PARA INFORMACIÓN MÁS DETALLADA IR A --> Tarea_2_Graf.pdf
+
 Uso del simulador:
 
 Primero se debe encender el avión.
